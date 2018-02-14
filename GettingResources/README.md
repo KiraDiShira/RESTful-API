@@ -8,7 +8,7 @@ The outer facing contract consists of three big concepts a consumer of an API us
 
 Method Definitions: https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
 
-When creating a resource, the HTTP response will contain a resource representation in its body. The format of those representations is what media types are used for, like application JSON. 
+When creating a resource, the HTTP response will contain a resource representation in its body. The format of those representations is what **media types** are used for, like application JSON. 
 
 The uniform interface constraint does cover the fact that resources are identified by URIs. Each resource has its own URI, but as far as naming of resources is concerned, there isn't a standard that describes that, or at least not unless you want to dive into OData. There are, however, best practices for this.
 
