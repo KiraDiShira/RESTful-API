@@ -32,4 +32,12 @@ Routing matches request URI to an action on a controller. There are two ways: co
 
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingResources/Images/gr2.PNG" />
 
+Use attribute at controller and action level: [Route], [HttpGet] ...
 
+## Interatcting with resources through HTTP methods
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingResources/Images/gr3.PNG" />
+
+**HEAD** is identical to GET with the notable difference that the API shouldn't return a response body, so no response payload. It can be used to obtain information on the resource like testing it for validity, for example, to test if a resource exists. 
+
+**OPTIONS** represents a request for information about the communication options available on that URI. So in other words, OPTIONS will tell us whether or not we can GET the resource, POST it, DELETE it and so on. These OPTIONS are typically in the response headers and not in the body, so no response payload.
