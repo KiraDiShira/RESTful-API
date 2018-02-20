@@ -46,7 +46,7 @@ Use attribute at controller and action level: [Route], [HttpGet] ...
 
 The outer facing model does only represents the resources that are sent over the wire in a specific format
 
-<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingResources/Images/gr3.PNG" />
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingResources/Images/gr4.PNG" />
 
 An author is stored in our database with a DateOfBirth, but that DateOfBirth, well that might not be what we want to offer up to the consumers of the API. They might be better off with the age. Another example might be concatenation. Concatenating the FirstName and LastName from an entity into one name field in the resource representation, and sometimes data might come from different places. An author could have a field, say, Royalties, that comes from another API our API must interact with. That alone leads to issues when using entity classes for the outer facing contract, as they don't contain that field. 
 
