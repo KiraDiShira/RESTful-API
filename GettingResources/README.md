@@ -194,4 +194,24 @@ Okay, so now how do we do that in ASP.NET Core?
 
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingResources/Images/gr5.PNG" />
 
+By default only the JSON input and output formatters are used. 
 
+If we never passed in an Accept header, we do get back JSON. That's because our API defaults to that. 
+
+If we add application/json as value for the Accept header, which we always should, we also should get back JSON.
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingResources/Images/gr6.PNG" />
+
+So let's send this again, and that is indeed the case. Now let's change this, let's try and send a request with an Accept header of `application/xml`. We still get back a JSON representation. That's already a bit worse, so we actually have two things we want to fix here. First, if the requested media type isn't supported by the API, we shouldn't default to the default type, as the consumer probably won't be able to parse it anyway. So sending a request with an Accept header of `application/xml` and returning JSON, that's not okay. And the second thing we do want to fix is that we want to ensure we do support XML. 
+
+```c#
+
+services.AddMvc(setupAction =>
+{
+    setupAction.ReturnHttpNotAcceptable = true; 
+    setupAction.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
+});
+
+```
+
+On the setupAction we can find a list of **OutputFormatters**. To this list we can add a new one. By the way, if you're wondering how ASP.NET Core chooses its default formatter if no Accept header is added to the request, it's always the first one in this list. So by manipulating this list, for example by adding a formatter at the end, inserting one in the beginning, or removing a formatter, we can define what types of output formatter our API supports, and what the default output format is. 
