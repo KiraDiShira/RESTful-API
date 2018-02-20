@@ -227,6 +227,6 @@ if we do a POST with this payload:
 }
 ```
 
-<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/CreatingAndDeletingResources/Images/Cadr3.PNG" />
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/CreatingAndDeletingResources/Images/Cadr3a.PNG" />
 
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/CreatingAndDeletingResources/Images/Cadr4.PNG" />
