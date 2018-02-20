@@ -6,6 +6,8 @@ The outer facing contract consists of three big concepts a consumer of an API us
 
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/CreatingAndDeletingResources/Images/Cadr1.PNG" />
 
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/CreatingAndDeletingResources/Images/Cadr2.PNG" />
+
 **Why is PUT idempotent?**
 
 When you PUT a resource, these two assumptions are in play:
