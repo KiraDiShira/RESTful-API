@@ -177,3 +177,21 @@ public class BooksController : Controller
 ```
 
 But let's set this off against one of our constraints, **manipulation of resources through representations**. That's the constraint that's stated that when a client altered a presentation of a resource, including any possible metadata, it must have enough information to modify or delete a resource on the server, provided it has permission to do so, and in the next module we'll allow creating and deleting an author. So if the consumer of the API gets the response we see now, does he have enough information to modify or delete the author? Well, not really, what should be in the response to allow for that, at a minimum, is the resource URI. We already include an Id, and often that's considered enough. From the Id a consumer can create a URI, but if you think about this a bit further, it isn't completely correct. An Id alone isn't what identifies the resource, it's the URI that identifies the resource, and the resource URI is part of the request, but it's not part of the response. So to adhere to this constraint we should include the URI in each representation if update or delete is allowed. We could do that now already, it's just a matter of adding an extra field and filling it up with the URI, but it's also not completely correct, and we're just getting started. There's a much better way of handling this than including the URI, and that's through **HATEOAS**. So we're going to leave this as is currently, and we'll solve this issue once we get to HATEOAS.
+
+## Formatters and Content Negotiation
+
+When we think about a RESTful API these days, we often think of JSON, but as we learned in the previous module, JSON has nothing to do with REST per se, it just happens to be the format of the resource representation, and that implies that a RESTful API can also work with other representation formats, like XML, or a proprietary format. 
+
+So that also means that we have to be able to let our API know what format we want to get back, and that brings us to one of the key concepts when working with HTTP requests and responses, and that's **content negotiation**. That's the process of selecting the best representation for a given response when there are multiple representations available, and it's important. 
+
+If you're only building an API for a specific client, it might be okay to always get back representations in JSON format, but if we're building an API for consumption by multiple clients, some of which we have no control over, chances are that not all of these clients can easily consume JSON representations as a response. Some might be better off with XML or another format, so how is this done? 
+
+Well that's what the **Accept header** of the HTTP request message is for. An API consumer should pass in the `requested media type` like `application/JSON` or `application/xml` through this header. For example, if an Accept header has a value of `application/json`, the consumer states that if our API supports the requested format, it should return that format. If it has a value of `application/xml`, it should return an XML representation, and so on. 
+
+We'll learn later on in the module on HATEOAS and media types that media types like these have a more important role in REST than what we're covering now, but let's not get ahead of ourselves. If no Accept header is available or if it doesn't support the requested format, a lot of APIs default to a default format, like JSON. But I'd suggest to avoid that, especially in the latter case. We could argue that we'd allow our API to serve up responses for requests without an Accept header with the default representation, but if the client requests a specific format, that means he'd also expect to get something back that he can parse. If the API returns its default format, if the requested format is missing, we'd likely end up with a client that cannot parse the response anyway, so in those cases a **406 Not acceptable** status code is warranted. After all, that's what this code was made for. Needless to say that it's also a best practice to always include an Accept header. 
+
+Okay, so now how do we do that in ASP.NET Core? 
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingResources/Images/gr5.PNG" />
+
+
