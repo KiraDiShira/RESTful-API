@@ -125,3 +125,55 @@ public class AuthorsController : Controller
 }
 
 ```
+
+## Working with Parent/Child Relationships
+
+```c#
+
+[Route("api/authors/{authorId}/books")]
+public class BooksController : Controller
+{
+    private readonly ILibraryRepository _libraryRepository;
+
+    public BooksController(ILibraryRepository libraryRepository)
+    {
+        _libraryRepository = libraryRepository;
+    }
+
+    [HttpGet()]
+    public IActionResult GetBooksForAuthor(Guid authorId)
+    {
+        if (!_libraryRepository.AuthorExists(authorId))
+        {
+            return NotFound();
+        }
+
+        var booksForAuthoreFromRepo = _libraryRepository.GetBooksForAuthor(authorId);
+
+        var booksForAuthor = Mapper.Map<IEnumerable<BookDto>>(booksForAuthoreFromRepo);
+
+        return Ok(booksForAuthor);
+    }
+
+    [HttpGet("{id}")]
+    public IActionResult GetBookForAuthor(Guid authorId, Guid id)
+    {
+        if (!_libraryRepository.AuthorExists(authorId))
+        {
+            return NotFound();
+        }
+
+        var bookForAuthoreFromRepo = _libraryRepository.GetBookForAuthor(authorId, id);
+        if (bookForAuthoreFromRepo == null)
+        {
+            return NotFound();
+        }
+        var bookForAuthor = Mapper.Map<BookDto>(bookForAuthoreFromRepo);
+
+        return Ok(bookForAuthor);
+    }
+}
+
+```
+
+But let's set this off against one of our constraints, **manipulation of resources through representations**. That's the constraint that's stated that when a client altered a presentation of a resource, including any possible metadata, it must have enough information to modify or delete a resource on the server, provided it has permission to do so, and in the next module we'll allow creating and deleting an author. So if the consumer of the API gets the response we see now, does he have enough information to modify or delete the author? Well, not really, what should be in the response to allow for that, at a minimum, is the resource URI. We already include an Id, and often that's considered enough. From the Id a consumer can create a URI, but if you think about this a bit further, it isn't completely correct. An Id alone isn't what identifies the resource, it's the URI that identifies the resource, and the resource URI is part of the request, but it's not part of the response. So to adhere to this constraint we should include the URI in each representation if update or delete is allowed. We could do that now already, it's just a matter of adding an extra field and filling it up with the URI, but it's also not completely correct, and we're just getting started. There's a much better way of handling this than including the URI, and that's through **HATEOAS**. So we're going to leave this as is currently, and we'll solve this issue once we get to HATEOAS.
