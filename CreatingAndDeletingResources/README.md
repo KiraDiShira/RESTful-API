@@ -8,6 +8,8 @@ The outer facing contract consists of three big concepts a consumer of an API us
 
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/CreatingAndDeletingResources/Images/Cadr2.PNG" />
 
+We're building a RESTful API that uses these HTTP methods. It's a standard, so we should correctly implement it so other components we might use can rely on this being correctly implemented. This table here will help us decide what we should use to implement the functionality we'll want from our API. So if you ever wonder what method to use for which use case, this is a table you'll want to go back to and check.
+
 **Why is PUT idempotent?**
 
 When you PUT a resource, these two assumptions are in play:
