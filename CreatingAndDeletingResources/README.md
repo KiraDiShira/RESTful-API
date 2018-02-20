@@ -152,3 +152,81 @@ Although PATCH isn't guarateed to be idempotent, there's nothing in the PATCH sp
 A PATCH request can be issued in such a way as to be idempotent, which also helps prevent bad outcomes from collisions between two PATCH requests on the same resource in a similar time frame.
 
 In Dan's example, his PATCH operation is, in fact, idempotent. In that example, the /users/1 entity changed between our PATCH requests, but not because of our PATCH requests; it was actually the Post Office's different patch document that caused the zip code to change. The Post Office's different PATCH is a different operation; if our PATCH is f(x), the Post Office's PATCH is g(x). Idempotence states that f(f(f(x))) = f(x), but makes no guarantes about f(g(f(x))).
+
+## Create a resource
+
+Then we need to get the inputted author, that'll be provided in the request body. That means we can use the `FromBody` attribute for that. If you use this in our parameter list, we signify that the parameter should be de-serialized from the request body, but what should it be de-serialized to? So we have this `AuthorDto` for output,
+
+```c#
+public class AuthorDto
+{
+    public Guid Id { get; set; }
+    public string Name { get; set; }
+    public int Age { get; set; }
+    public string Genre { get; set; }
+}
+```
+
+
+but for post, we need a Dto for input, and that should be a different type than this AuthorDto. This AuthorDto contains an ID, and we're creating an author in a system for which the responsibility of generating the Id is at level of the API. So the Dto shouldn't contain that Id field. And there's more, we return the age of the author, but in the backend, we store the date of birth, so we do need that date of birth as input. And name, well, we store first name and last name fields, and not a concatenation of those, as is the case in our `AuthorDto` class. So let's create an `author for CreationDto`. 
+
+```c#
+public class AuthorForCreationDto
+{
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public DateTimeOffset DateOfBirth { get; set; }
+    public string Genre { get; set; }
+}
+```
+
+Mind you there are system where the properties on the class used for output are exactly the same as those on the class used for input, but even in those cases, I'd suggest to keep these separate. It leads to a model that's more in line with the API functionality, make change already factoring afterwards much easier, and when validation comes into play, you typically want validation on input, but not necessarily on output. So I suggest to use a separate Dto for creating, updating, and returning resources. 
+
+```c#
+[HttpGet("{id}", Name = "GetAuthor")]
+public IActionResult GetAuthor(Guid id)
+{
+   ...
+}
+
+[HttpPost]
+public IActionResult CreateAuthor([FromBody] AuthorForCreationDto author)
+{
+    if (author == null)
+    {
+        return BadRequest();
+    }
+
+    var authorEntity = Mapper.Map<Author>(author);
+
+    _libraryRepository.AddAuthor(authorEntity);
+
+    if (!_libraryRepository.Save())
+    {
+        throw new Exception("Creating an author failed on save");
+        //return StatusCode(500, "A problem happened with handling your request.");
+    }
+
+    var authorToReturn = Mapper.Map<AuthorDto>(authorEntity);
+
+    return CreatedAtRoute("GetAuthor", new {id = authorToReturn.Id}, authorToReturn);
+}
+```
+What if there is a fault persisting entity in the database? We want to return, a 500 internal server error with a generic error message. We only return a generic error message, because the consumer of the API really doesn't need to know what exactly went wrong, it just needs to know that it's not its responsibility. Our generic exception handler will not catch this, as save doesn't throw an exception, but we can use the StatusCode method for that, passing in the StatusCode. The StatusCode is 500, and we provide a generic message. But we already configured the exception handler middleware in the previous module to return a 500 internal server error with a generic message if an unhandled exception occurs. So another option is to throw an exception from the controller, and let the middleware handle it. Now is this a good approach or a bad approach? Well it's, it kind of depends. Throwing exceptions is expensive, it's a performance hit, so that would lead us to returning the StatusCode from the controller as a best practice, but on the other hand, that also means that we'll have code to return 500 internal server errors in different places, on the global level and in the controller itself. At this moment, that's not too much of a problem, but once we start implementing logging, that would also mean we'd want to provide logging code on each StatusCode 500 we return. I've seen both approaches, and there's something to be said for both. In this case, we're going to have the middleware handle all our responses that warrant a 500 internal server error. That'll come in nicely when we need to implement logging for these types of StatusCodes later on. We'll only have to write that code in one place, being at the configuration of the exception handler middleware.
+
+what should we return. In case of a successful post, we should return a 201 created response. For that, we can use the CreatedAtRoute method. This method allows us to return a response with the location header, and that location header, that will then contain the URI where the newly created author can be found. So the first thing we need to pass into this method is the route name that's going to be used for generating the URI. And if we scroll up a bit, we see that it should refer to the action to get a single author, that's our GetAuthor action. So, let's give this a name we can refer to, say GetAuthor, there we go. And we pass in GetAuthor as the first parameter of our CreatedAtRoute method. Now to get an author, we need the author ID. We need to pass that in as a route value, so the correct URI can be generated containing that ID. To do that, we pass in an anonymous type, and we give that anonymous type one field, ID, which is the name used in our route template, and we give it a value of authorToReturn.Id. And lastly, we want to pass in the actual authorToReturn Dto. This one will get serialized into the response body.
+
+if we do a POST with this payload:
+
+```c#
+{
+	"firstName" : "James",
+	"lastName": "Ellroy",
+	"dateOfBirth" : "1948-03-04T00:00:00",
+	"genre" : "Thriller"
+}
+```
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/CreatingAndDeletingResources/Images/Cadr3.PNG" />
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/CreatingAndDeletingResources/Images/Cadr4.PNG" />
