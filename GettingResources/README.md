@@ -69,3 +69,18 @@ Then there's the status codes that tell the consumer he did something wrong, **l
 And lastly there's **level 500**, server mistakes. Often only **500 - Internal server error** is supported. This means the server made a mistake and the client can't do anything about it, other than trying again later. 
 
 That's a lot of status codes, no reason to learn them by heart, we'll encounter all of them during this course. Some mistakes do happen, and these mistakes are then categorized into two categories, **faults and errors**. Errors are defined as a consumer of the API, like a web app, passing invalid data to the API, and the API correctly rejecting that data. Examples include invalid credentials or incorrect parameters, in other words, these are level 400 status codes and are the result of a client passing incorrect or invalid data. Errors do not contribute to overall API availability. Faults are defined as the API failing to correctly return a response to a valid request by a consumer. In other words, the API made a mistake, so these are level 500 status codes, and these faults, they do contribute to the overall API availability.
+
+## Handling faults
+
+```c#
+
+app.UseExceptionHandler(appBuilder =>
+{
+    appBuilder.Run(async context =>
+    {
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync("An expected fault happened. Try again later.");
+    });
+});
+
+```
