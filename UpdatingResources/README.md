@@ -1,14 +1,38 @@
 # Updating resources
 
-## Method Safety and Method Idempotency
+## Updating a Resource 
 
-The outer facing contract consists of three big concepts a consumer of an API uses to interact with that API.
+```c#
 
-<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/CreatingAndDeletingResources/Images/Cadr1.PNG" />
+[HttpPut("{id}")]
+public IActionResult UpdateBookForAuthor(Guid authorId, Guid id, [FromBody] BookForUpdateDto book)
+{
+    if (book == null)
+    {
+        return BadRequest();
+    }
 
-<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/CreatingAndDeletingResources/Images/Cadr2.PNG" />
+    if (!_libraryRepository.AuthorExists(authorId))
+    {
+        return NotFound();
+    }
 
+    var bookForAuthorFromRepo = _libraryRepository.GetBookForAuthor(authorId, id);
+    if (bookForAuthorFromRepo == null)
+    {
+        return NotFound();
+    }
 
-```
-The term idempotent is used more comprehensively to describe an operation that will produce the same results if executed once or multiple times [...] An idempotent function is one that has the property f(f(x)) = f(x) for any value x.
+    Mapper.Map(book, bookForAuthorFromRepo);
+
+    _libraryRepository.UpdateBookForAuthor(bookForAuthorFromRepo);
+
+    if (!_libraryRepository.Save())
+    {
+        throw new Exception($"Updating book {id} for author {authorId} failed on save.");
+    }
+
+    return NoContent(); //anche Ok(...) è lecito, ma richiede più traffico sulla rete
+}
+
 ```
