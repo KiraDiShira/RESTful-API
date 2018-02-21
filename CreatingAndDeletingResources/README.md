@@ -494,3 +494,28 @@ public IActionResult DeleteBookForAuthor(Guid authorId, Guid id)
 }
 ```
 ## Deleting a Resource with Child Resources
+
+CascadeOnDelete is on by default, so when we delete an author with Entity Framework Core, the books for that author are deleted as well.
+
+```c#
+[HttpDelete("{id}")]
+public IActionResult DeleteAuthor(Guid id)
+{
+    var authorFromRepo = _libraryRepository.GetAuthor(id);
+    if (authorFromRepo == null)
+    {
+        return NotFound();
+    }
+
+    _libraryRepository.DeleteAuthor(authorFromRepo);
+
+    if (!_libraryRepository.Save())
+    {
+        throw new Exception($"Deleting author {id} failed on save.");
+    }
+
+    return NoContent();
+}
+```
+Deleting Collection Resources
+There's one case we didn't cover, sending a delete request to a collection resource. There's nothing that would stop us from doing so, so it's perfectly allowed. A resource is identified by a URI, and that URI can refer to a collection resource or a single resource, but it's still, well, just a resource, but what would that do? Say we send a delete request to api/authors. That would mean we'd have to delete all our authors, and as books are children of authors, the books for all those authors are well. In other words, we'd end up with not a single resource left to get. So while supporting this is allowed, it's advised against, because delete is a pretty destructive action. Unless you really need it, you don't want to allow this on a collection resource, as that might have the effect of thousands of resources being deleted in one go. Note that that's different from what we just did in the previous demo, where we deleted the books for an author when the author was deleted. In that case, we still send the request to a single resource, which happened to result in other resources getting deleted, because they don't make sense without that parent resource. And with that, we've reached the end of this module, time to check out the summary.
