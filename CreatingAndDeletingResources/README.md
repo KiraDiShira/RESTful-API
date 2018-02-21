@@ -230,3 +230,69 @@ if we do a POST with this payload:
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/CreatingAndDeletingResources/Images/Cadr3a.PNG" />
 
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/CreatingAndDeletingResources/Images/Cadr4.PNG" />
+
+## Creating a Child Resource
+
+```c#
+public class Book
+{
+    [Key]       
+    public Guid Id { get; set; }
+
+    [Required]
+    [MaxLength(100)]
+    public string Title { get; set; }
+
+    [MaxLength(500)]
+    public string Description { get; set; }
+
+    [ForeignKey("AuthorId")]
+    public Author Author { get; set; }
+
+    public Guid AuthorId { get; set; }
+}
+```
+
+We already know from the previous demo that we don't want the Id in our new class, as the server is responsible for choosing the URI, but what about that AuthorId, there's already an AuthorId in the URI, so if we allow the AuthorId in the payloads, well, we might end up with an issue we want to avoid, and that issue is that a post to the book's resource for author A would create a book for author B. 
+
+```c#
+public class BookForCreationDto
+{
+    public string Title { get; set; }
+    public string Description { get; set; }
+}
+
+[Route("api/authors/{authorId}/books")]
+public class BooksController : Controller
+{    
+    ...
+	
+    [HttpPost]
+    public IActionResult CreateBookForAuthor(Guid authorId, [FromBody] BookForCreationDto book)
+    {
+        if (book == null)
+        {
+            return BadRequest();
+        }
+
+        if (!_libraryRepository.AuthorExists(authorId))
+        {
+            return NotFound();
+        }
+
+        var bookEntity = Mapper.Map<Book>(book);
+
+        _libraryRepository.AddBookForAuthor(authorId, bookEntity);
+
+        if (!_libraryRepository.Save())
+        {
+            throw new Exception($"Creating a book for author {authorId} failed on save");
+        }
+
+        var bookToReturn = Mapper.Map<BookDto>(bookEntity);
+
+        return CreatedAtRoute("GetBookForAuthor", new { authorId = authorId, id = bookToReturn.Id }, bookToReturn);
+    }
+}
+
+```
