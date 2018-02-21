@@ -426,3 +426,43 @@ public class ArrayModelBinder : IModelBinder
     }
 }
 ```
+## Handling POST to a Single Resource
+
+Posting to a URI like this can never result in a successful request:
+
+```
+http://localhost:6058/api/authors/{guid}
+```
+It should either return a **404 Not Found** if the author doesn't exist, or a **409 conflict** if the author already exists.
+
+If I call that URI I get 404 Not Found. It's a URI that's not linked to a route, so ASP.NET Core MVC handles this for us.
+
+Say we send a request like this to an existing URI, we'd expect a 409 conflict as we're trying to create your resource that already exists. Let's try this, and we also get back a 404 Not Found. It's still the same type of URI not linked to a route template, so this makes sense, but it's not correct. It's a matter adhering to the HTTP standard. Most APIs would not bother with adding an additional action just to return a correct HTTP StatusCode, but we're trying to adhere to it as good as possible.
+
+```c#
+[HttpPost("{id}")]
+public IActionResult BlockAuthorCreation(Guid id)
+{
+    if (_libraryRepository.AuthorExists(id))
+    {
+        return new StatusCodeResult(StatusCodes.Status409Conflict);
+    }
+
+    return NotFound();
+}
+```
+
+StatusCodeResult is an action result that results in a response without a body, but with a specific StatusCode.
+
+## Supporting Additional Content-type Values and Input Formatters
+
+Let's open a post request again, and let's look at those headers, here's that content-type header. What would happen if we didn't provide a content-type header. Let's give that a try, let me uncheck that, and let's send. We get back **415 Unsupported Media Type**. We didn't pass in the media type, so our API doesn't know how to handle this. In other words, we always need to provide a content-type header when providing a request body that's in line with the self-descriptive message constraint. But what if you want to support other types of input like XML, especially when you're working on an API that integrates between different systems, this can be a requirement.
+
+```c#
+services.AddMvc(setupAction =>
+{
+    setupAction.ReturnHttpNotAcceptable = true; 
+    setupAction.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
+    setupAction.InputFormatters.Add(new XmlDataContractSerializerInputFormatter());
+});
+```
