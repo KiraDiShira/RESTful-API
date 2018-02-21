@@ -317,6 +317,8 @@ And then is the repository responsible for handling this situation
 
 ## Creating a Collection of Resources
 
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/CreatingAndDeletingResources/Images/Cadr5.PNG" />
+
 There isn't a standard that states how to work with this, but what's often done is using round brackets containing the comma-separated key.
 
 ```c#
