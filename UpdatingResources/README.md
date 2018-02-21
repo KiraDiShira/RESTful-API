@@ -49,4 +49,64 @@ In a lot of systems, it's the server that's responsible for creating the identif
 
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/UpdatingResources/Images/ur1.PNG" />
 
+```c#
 
+[HttpPut("{id}")]
+public IActionResult UpdateBookForAuthor(Guid authorId, Guid id,
+    [FromBody] BookForUpdateDto book)
+{
+    if (book == null)
+    {
+        return BadRequest();
+    }
+
+    //if (book.Description == book.Title)
+    //{
+    //    ModelState.AddModelError(nameof(BookForUpdateDto),
+    //        "The provided description should be different from the title.");
+    //}
+
+    //if (!ModelState.IsValid)
+    //{
+    //    return new UnprocessableEntityObjectResult(ModelState);
+    //}
+
+
+    if (!_libraryRepository.AuthorExists(authorId))
+    {
+        return NotFound();
+    }
+
+    var bookForAuthorFromRepo = _libraryRepository.GetBookForAuthor(authorId, id);
+    if (bookForAuthorFromRepo == null)
+    {
+        var bookToAdd = Mapper.Map<Book>(book);
+        bookToAdd.Id = id;
+
+        _libraryRepository.AddBookForAuthor(authorId, bookToAdd);
+
+        if (!_libraryRepository.Save())
+        {
+            throw new Exception($"Upserting book {id} for author {authorId} failed on save.");
+        }
+
+        var bookToReturn = Mapper.Map<BookDto>(bookToAdd);
+
+        return CreatedAtRoute("GetBookForAuthor",
+            new { authorId = authorId, id = bookToReturn.Id },
+            bookToReturn);
+    }
+
+    Mapper.Map(book, bookForAuthorFromRepo);
+
+    _libraryRepository.UpdateBookForAuthor(bookForAuthorFromRepo);
+
+    if (!_libraryRepository.Save())
+    {
+        throw new Exception($"Updating book {id} for author {authorId} failed on save.");
+    }
+
+    return NoContent();
+}
+
+```
