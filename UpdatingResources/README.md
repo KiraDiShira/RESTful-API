@@ -215,3 +215,14 @@ public IActionResult PartiallyUpdateBookForAuthor(Guid authorId, Guid id, [FromB
     return NoContent();
 }
 ```
+
+## HTTP Method Overview by Use Case
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/UpdatingResources/Images/ur7.PNG" />
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/UpdatingResources/Images/ur8.PNG" />
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/UpdatingResources/Images/ur9.PNG" />
+
+
+
