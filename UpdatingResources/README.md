@@ -155,3 +155,7 @@ public IActionResult PartiallyUpdateBookForAuthor(Guid authorId, Guid id, [FromB
 }
 
 ```
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/UpdatingResources/Images/ur5.PNG" />
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/UpdatingResources/Images/ur6.PNG" />
