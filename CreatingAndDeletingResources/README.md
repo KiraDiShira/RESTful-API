@@ -493,3 +493,4 @@ public IActionResult DeleteBookForAuthor(Guid authorId, Guid id)
     return NoContent(); //204
 }
 ```
+## Deleting a Resource with Child Resources
