@@ -98,3 +98,22 @@ public IActionResult UpdateBookForAuthor(Guid authorId, Guid id,
 }
 
 ```
+
+## Partially Updating a Resource
+
+Full updates with put aren't always advised, if only for the overhead it creates. In fact, if we would look at the data, which is a standard that's essentially a set of best practices for creating RESTful APIs, we'd notice that standard state, **patch should be preferred over put**, and patch, that's partial updates. 
+
+But that's not sufficient, we need a way to pass a change set to a resource using this HTTP patch method. In other words, what should the body of a patch request look like? Luckily there's a standard for this, the **JSON patch standard**. This defines a JSON document structure for expressing a sequence of operations to apply to a JSON document. You can look at that structure as a change set, a set of operations that'll be applied to the resource at patch request with that JSON patch document in the body is sent to. The `application/json-patch+json` media type is used to identify such patch documents. 
+
+Let's have a look at such a request body. Imagine this is a patch request to a specific book for an author. 
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/UpdatingResources/Images/ur2.PNG" />
+
+It starts with straight brackets signifying an array, that array, that's a list of operations that have to be applied to the resource. We're seeing two operations in the example on screen. The first one is a replace operation signified by op. Path signifies the path to the property. These are the property names of the resource, the Dto, and not on whatever lies beneath that layer. Value signifies a new value, so the title property gets the value new title. The second operation removes the description of a book. The operation is set to remove, the path is thus /description. There's no value, the properties value will be removed. In some dynamic systems, the property itself will be removed from the resource, but when working with Dto classes, it should be set to its default value. Once this request is received, the API will apply it to the resource. Each operation is applied after the other one, and a request is only successful when all operations can be applied. 
+
+There's six different operations possible. 
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/UpdatingResources/Images/ur3.PNG" />
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/UpdatingResources/Images/ur4.PNG" />
+
