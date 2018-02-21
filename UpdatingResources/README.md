@@ -117,3 +117,41 @@ There's six different operations possible.
 
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/UpdatingResources/Images/ur4.PNG" />
 
+```c#
+
+[HttpPatch("{id}")]
+public IActionResult PartiallyUpdateBookForAuthor(Guid authorId, Guid id, [FromBody] JsonPatchDocument<BookForUpdateDto> patchDoc)
+{
+    if (patchDoc == null)
+    {
+        return BadRequest();
+    }
+
+    if (!_libraryRepository.AuthorExists(authorId))
+    {
+        return NotFound();
+    }
+
+    var bookForAuthorFromRepo = _libraryRepository.GetBookForAuthor(authorId, id);
+    if (bookForAuthorFromRepo == null)
+    {
+        return NotFound();
+    }
+
+    var bookToPatch = Mapper.Map<BookForUpdateDto>(bookForAuthorFromRepo);
+
+    patchDoc.ApplyTo(bookToPatch);
+
+    Mapper.Map(bookToPatch, bookForAuthorFromRepo);
+
+    _libraryRepository.UpdateBookForAuthor(bookForAuthorFromRepo);
+
+    if (!_libraryRepository.Save())
+    {
+        throw new Exception($"Patching book {id} for author {authorId} failed on save.");
+    }
+
+    return NoContent();
+}
+
+```
