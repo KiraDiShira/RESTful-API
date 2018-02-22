@@ -3,6 +3,7 @@
 # Working with validation and logging
 
 - [ Working with Validation in a RESTful World](#working-with-validation-in-a-restful-world)
+- [Working with Validation on POST](#working-with-validation-on-post)
 
 ##  Working with Validation in a RESTful World
 
@@ -20,4 +21,6 @@ The final step, **reporting validation errors**. When a validation error happens
 
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/ValidationAndLogging/Images/val2.PNG" />
 
-. If the client application needs to be able to do something more than simply binding these errors to a control, often an error code is included as well, so the client application can act on that error code, also quite useful for multi-language applications. In APS.NET CORE MVC, typically the ModelState's validation errors are serialized, so we end up with a list of property names and related validation errors. But this can vary depending on what we're building the API for. Let's dive in with the first demo, working with validation on post.
+If the client application needs to be able to do something more than simply binding these errors to a control, often an error code is included as well, so the client application can act on that error code, also quite useful for multi-language applications. In APS.NET CORE MVC, typically the ModelState's validation errors are serialized, so we end up with a list of property names and related validation errors. But this can vary depending on what we're building the API for.
+
+## Working with Validation on POST
