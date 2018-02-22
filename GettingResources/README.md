@@ -3,7 +3,7 @@
 # Getting Resources
 
 - [Structuring Our Outer Facing Contract](#structuring-our-outer-facing-contract)
-- [Working with routing](working-with-routing)
+- [Working with routing](#working-with-routing)
 - [Interatcting with resources through HTTP methods](#interatcting-with-resources-through-http-methods)
 - [Outer Facing Model vs. Entity Model](#outer-facing-model-vs-entity-model)
 - [The Importance of Status Codes](#the-importance-of-status-codes)
