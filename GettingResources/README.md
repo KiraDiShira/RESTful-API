@@ -1,4 +1,16 @@
+- [Index](https://github.com/KiraDiShira/RESTful-API#restful-api)
+
 # Getting Resources
+
+- [Structuring Our Outer Facing Contract](#structuring-our-outer-facing-contract)
+- [Working with routing](working-with-routing)
+- [Interatcting with resources through HTTP methods](#interatcting-with-resources-through-http-methods)
+- [Outer Facing Model vs. Entity Model](#outer-facing-model-vs-entity-model)
+- [The Importance of Status Codes](#the-importance-of-status-codes)
+- [Handling faults](#handling-faults)
+- [Example: Putting all together](#example-putting-all-together)
+- [Working with Parent/Child Relationships](#working-with-parent-child-relationships)
+- [Formatters and Content Negotiation](#formatters-and-content-negotiation)
 
 ## Structuring Our Outer Facing Contract
 
