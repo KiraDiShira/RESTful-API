@@ -2,7 +2,11 @@
 
 # Introducing REST
 
-## Introducing REST
+- [Introduction](#introduction)
+- [REST constraints](#rest-constraints)
+- [The Richardson Maturity Model](#the-richardson-maturity-model)
+
+## Introduction
 
 REST isn't just about building an API which consists of a few HTTP services that return JSON.
 
