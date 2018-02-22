@@ -9,7 +9,7 @@
 - [The Importance of Status Codes](#the-importance-of-status-codes)
 - [Handling faults](#handling-faults)
 - [Example: Putting all together](#example-putting-all-together)
-- [Working with Parent/Child Relationships](#working-with-parent-child-relationships)
+- [Working with Parent/Child Relationships](#working-with-parentchild-relationships)
 - [Formatters and Content Negotiation](#formatters-and-content-negotiation)
 
 ## Structuring Our Outer Facing Contract
