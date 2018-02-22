@@ -67,6 +67,42 @@ public IActionResult CreateBookForAuthor(Guid authorId, [FromBody] BookForCreati
     ...
 }
 
-
 ```
 
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/ValidationAndLogging/Images/val3.PNG" />
+
+what we see here are the default messages that come with the annotations. We can change those.
+
+```c#
+public class BookForCreationDto
+{
+    [Required(ErrorMessage = "you should fill out a title.")]
+    [MaxLength(100)]
+    public string Title { get; set; }
+
+    [MaxLength(500)]
+    public string Description { get; set; }
+}
+```
+
+This is just simple validation. Some business or validation rules can't be covered with data annotations.
+
+```c#
+[HttpPost]
+public IActionResult CreateBookForAuthor(Guid authorId, [FromBody] BookForCreationDto book)
+{
+    if (book == null)
+    {
+        return BadRequest();
+    }
+
+    if (book.Description == book.Title)
+    {
+        ModelState.AddModelError(nameof(BookForCreationDto), "The provided description should be different from the title");
+    }
+
+    if (!ModelState.IsValid)
+    {
+        return new UnprocessableEntityObjectResult(ModelState);
+    }
+```
