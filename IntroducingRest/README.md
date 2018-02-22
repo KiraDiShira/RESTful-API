@@ -10,15 +10,15 @@ He first coined the term in his PhD dissertation to describe an architectural st
 
 Imagine you want to read your favorite newspaper online. You've opened your browser. That browser, that's an HTTP client. You point it to a URI. That's the unique resource identifier. It identifies where the resource lives. By doing that, the browser actually sends an HTTP request to that URI.
 
-<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/Images/Rest1.PNG" />
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/IntroducingRest/Images/Rest1.PNG" />
 
 The server then does some magic and sends an HTTP response message back to the browser. That HTTP response message contains a representation of the page you've navigated to. In our example, that would probably be some HTML and CSS. The browser then interprets that resource representation and shows it. In other words, the browser, our HTTP client, has changed state.
 
-<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/Images/Rest2.PNG" />
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/IntroducingRest/Images/Rest2.PNG" />
 
 Now let's say we click a link in our browser to access a specific article on the newspaper side. That one is again identified by a URI. A new request message is sent to the server, and the server again sends back a representation of the page, the resource. The browser interprets it and changes state. In other words, the client changes state depending on the representation of the resource we're accessing. And that's representational state transfer, or REST.
 
-<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/Images/Rest3.PNG" />
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/IntroducingRest/Images/Rest3.PNG" />
 
 ## REST constraints
 
