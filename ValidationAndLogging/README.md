@@ -2,9 +2,10 @@
 
 # Working with validation and logging
 
-- [ Working with Validation in a RESTful World](#working-with-validation-in-a-restful-world)
+- [Working with Validation in a RESTful World](#working-with-validation-in-a-restful-world)
 - [Working with Validation on POST](#working-with-validation-on-post)
 - [Working with Validation on PUT](#working-with-validation-on-put)
+- [Working with Validation on PATCH](#working-with-validation-on-patch)
 
 ##  Working with Validation in a RESTful World
 
@@ -167,3 +168,24 @@ public IActionResult UpdateBookForAuthor(Guid authorId, Guid id,
 
 Our custom rule here in the UpdateBookForAuthor action, well, that's almost the same as the custom rule in the CreateBookForAuthor action. We could factor that out into a separate method, or create some sort of validation service that would handle all the validation for us, but the main issue is in my personal opinion with how ASP.NET and ASP.NET Core by default handle this validation. Annotations mix in rules with models, and that's not really a good separation of concerns. And having to write validation rules in two different places, the model and the controller, for the same model, doesn't feel right either. It's good enough for our purposes, because after all, we are talking about RESTful architectures, so that's what we're focusing on. However, I do want to give a tip for when you're building more complex applications, then it might be a good idea to keep an eye on something like **fluent validation**, which offers a fluent interface to build validation rules for your objects. From version 6.4 and onwards, .NET Core is supported.
 
+## Working with Validation on PATCH
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/ValidationAndLogging/Images/val4.PNG" />
+
+```c#
+//patchDoc.ApplyTo(bookToPatch);
+patchDoc.ApplyTo(bookToPatch, ModelState);
+
+if (bookToPatch.Description == bookToPatch.Title)
+{
+    ModelState.AddModelError(nameof(BookForUpdateDto),
+        "The provided description should be different from the title.");
+}
+
+TryValidateModel(bookToPatch); //extra validation (validate rule)
+
+if (!ModelState.IsValid)//ModelState here is JsonPatchDocument (validate JsonPatchDocument), we need the previous extra validation
+{
+    return new UnprocessableEntityObjectResult(ModelState);
+}
+```
