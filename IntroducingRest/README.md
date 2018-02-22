@@ -1,4 +1,4 @@
-# RESTful-API
+# Introducing REST
 
 ## Introducing REST
 
