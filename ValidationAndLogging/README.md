@@ -6,6 +6,9 @@
 - [Working with Validation on POST](#working-with-validation-on-post)
 - [Working with Validation on PUT](#working-with-validation-on-put)
 - [Working with Validation on PATCH](#working-with-validation-on-patch)
+- [Logging Faults](#logging-faults)
+- [Logging Errors and Other Information](#logging-errors-and-other-information)
+- [Logging to a File](#logging-to-a-file)
 
 ##  Working with Validation in a RESTful World
 
@@ -189,3 +192,108 @@ if (!ModelState.IsValid)//ModelState here is JsonPatchDocument (validate JsonPat
     return new UnprocessableEntityObjectResult(ModelState);
 }
 ```
+
+Upserting, it's the same principle to follow:
+
+```c#
+
+if (bookForAuthorFromRepo == null)
+{
+    var bookDto = new BookForUpdateDto();
+    patchDoc.ApplyTo(bookDto, ModelState);
+    //patchDoc.ApplyTo(bookDto);
+
+    if (bookDto.Description == bookDto.Title)
+    {
+        ModelState.AddModelError(nameof(BookForUpdateDto),
+            "The provided description should be different from the title.");
+    }
+
+    TryValidateModel(bookDto);
+
+    if (!ModelState.IsValid)
+    {
+        return new UnprocessableEntityObjectResult(ModelState);
+    }
+
+    var bookToAdd = Mapper.Map<Book>(bookDto);
+    bookToAdd.Id = id;
+
+    _libraryRepository.AddBookForAuthor(authorId, bookToAdd);
+
+    if (!_libraryRepository.Save())
+    {
+        throw new Exception($"Upserting book {id} for author {authorId} failed on save.");
+    }
+
+    var bookToReturn = Mapper.Map<BookDto>(bookToAdd);
+    return CreatedAtRoute("GetBookForAuthor",
+        new { authorId = authorId, id = bookToReturn.Id },
+        bookToReturn);
+}
+
+```
+
+## Logging Faults
+
+```c#
+
+app.UseExceptionHandler(appBuilder =>
+{
+    appBuilder.Run(async context =>
+    {
+        var exceptionHandlerFeature = context.Features.Get<IExceptionHandlerFeature>();
+        if (exceptionHandlerFeature != null)
+        {
+            var logger = loggerFactory.CreateLogger("Global exception logger");
+            logger.LogError(500,
+                exceptionHandlerFeature.Error,
+                exceptionHandlerFeature.Error.Message);
+        }
+        context.Response.StatusCode = 500;
+        await context.Response.WriteAsync("An expected fault happened. Try again later.");
+    });
+});
+
+```
+
+## Logging Errors and Other Information
+
+```c#
+
+private readonly ILibraryRepository _libraryRepository;
+private readonly ILogger<BooksController> _logger;
+
+public BooksController(ILibraryRepository libraryRepository, ILogger<BooksController> logger)
+{
+    _libraryRepository = libraryRepository;
+    _logger = logger;
+}
+
+...
+
+if (!_libraryRepository.Save())
+{
+    throw new Exception($"Deleting book {id} for author {authorId} failed on save.");
+}
+
+_logger.LogInformation(100, $"Book {id} for author {authorId} was deleted.");
+
+```
+
+## Logging to a File
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/ValidationAndLogging/Images/val5.PNG" />
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/ValidationAndLogging/Images/val6.PNG" />
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/ValidationAndLogging/Images/val7.PNG" />
+
+```
+public static IWebHost BuildWebHost(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>()
+                .UseNLog()                
+                .Build();
+```
+
