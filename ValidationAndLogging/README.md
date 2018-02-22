@@ -24,3 +24,49 @@ The final step, **reporting validation errors**. When a validation error happens
 If the client application needs to be able to do something more than simply binding these errors to a control, often an error code is included as well, so the client application can act on that error code, also quite useful for multi-language applications. In APS.NET CORE MVC, typically the ModelState's validation errors are serialized, so we end up with a list of property names and related validation errors. But this can vary depending on what we're building the API for.
 
 ## Working with Validation on POST
+
+First we need to define the rules, and we can do that with data annotations.
+
+```c#
+public class BookForCreationDto
+{
+    [Required]
+    [MaxLength(100)]
+    public string Title { get; set; }
+
+    [MaxLength(500)]
+    public string Description { get; set; }
+}
+
+public class UnprocessableEntityObjectResult : ObjectResult
+{
+    public UnprocessableEntityObjectResult(ModelStateDictionary modelState)
+        : base(new SerializableError(modelState))
+    {
+        if (modelState == null)
+        {
+            throw new ArgumentNullException(nameof(modelState));
+        }
+        StatusCode = 422;
+    }
+}
+
+[HttpPost]
+public IActionResult CreateBookForAuthor(Guid authorId, [FromBody] BookForCreationDto book)
+{
+    if (book == null)
+    {
+        return BadRequest();
+    }
+
+    if (!ModelState.IsValid)
+    {
+        //return 422
+        return new UnprocessableEntityObjectResult(ModelState);
+    }
+    ...
+}
+
+
+```
+
