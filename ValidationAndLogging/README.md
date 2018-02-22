@@ -2,8 +2,9 @@
 
 # Working with validation and logging
 
-- [Introduction](#introduction)
+- [ Working with Validation in a RESTful World](#working-with-validation-in-a-restful-world)
 
+##  Working with Validation in a RESTful World
 
-## Introduction
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/ValidationAndLogging/Images/val1.PNG" />
 
