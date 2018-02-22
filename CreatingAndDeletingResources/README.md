@@ -1,4 +1,17 @@
+- [Index](https://github.com/KiraDiShira/RESTful-API#restful-api)
+
 # Creating and Deleting Resources
+
+- [Method Safety and Method Idempotency](#method-safety-and-method-idempotency)
+- [Create a resource](#create-a-resource)
+- [Creating a Child Resource](#creating-a-child-resource)
+- [Creating Child Resources Together with a Parent Resource](#creating-child-resources-together-with-a-parent-resource)
+- [Creating a Collection of Resources](#creating-a-collection-of-resources)
+- [Handling POST to a Single Resource](#handling-post-to-a-single-resource)
+- [Supporting Additional Content-type Values and Input Formatters](#supporting-additional-content-type-values-and-input-formatters)
+- [Deleting a resource](#deleting-a-resource)
+- [Deleting a Resource with Child Resources](#deleting-a-resource-with-child-resources)
+- [Deleting Collection Resources](#deleting-collection-resources)
 
 ## Method Safety and Method Idempotency
 
