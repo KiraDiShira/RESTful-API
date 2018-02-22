@@ -164,3 +164,6 @@ public IActionResult UpdateBookForAuthor(Guid authorId, Guid id,
     }
 
 ```
+
+Our custom rule here in the UpdateBookForAuthor action, well, that's almost the same as the custom rule in the CreateBookForAuthor action. We could factor that out into a separate method, or create some sort of validation service that would handle all the validation for us, but the main issue is in my personal opinion with how ASP.NET and ASP.NET Core by default handle this validation. Annotations mix in rules with models, and that's not really a good separation of concerns. And having to write validation rules in two different places, the model and the controller, for the same model, doesn't feel right either. It's good enough for our purposes, because after all, we are talking about RESTful architectures, so that's what we're focusing on. However, I do want to give a tip for when you're building more complex applications, then it might be a good idea to keep an eye on something like **fluent validation**, which offers a fluent interface to build validation rules for your objects. From version 6.4 and onwards, .NET Core is supported.
+
