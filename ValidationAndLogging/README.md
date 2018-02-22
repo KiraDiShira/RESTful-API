@@ -4,6 +4,7 @@
 
 - [ Working with Validation in a RESTful World](#working-with-validation-in-a-restful-world)
 - [Working with Validation on POST](#working-with-validation-on-post)
+- [Working with Validation on PUT](#working-with-validation-on-put)
 
 ##  Working with Validation in a RESTful World
 
@@ -105,4 +106,61 @@ public IActionResult CreateBookForAuthor(Guid authorId, [FromBody] BookForCreati
     {
         return new UnprocessableEntityObjectResult(ModelState);
     }
+```
+## Working with Validation on PUT
+
+So isn't this exactly the same as on post? Well, for some resources, if not most, that's probably the case, but it doesn't have to be.
+
+```c#
+public abstract class BookForManipulationDto
+{
+    [Required(ErrorMessage = "You should fill out a title.")]
+    [MaxLength(100, ErrorMessage = "The title shouldn't have more than 100 characters.")]
+    public string Title { get; set; }
+
+    [MaxLength(500, ErrorMessage = "The description shouldn't have more than 500 characters.")]
+    public virtual string Description { get; set; }
+}
+
+public class BookForCreationDto : BookForManipulationDto
+{
+}
+
+public class BookForUpdateDto : BookForManipulationDto
+{
+    [Required(ErrorMessage = "You should fill out a description.")]
+    public override string Description
+    {
+        get
+        {
+            return base.Description;
+        }
+
+        set
+        {
+            base.Description = value;
+        }
+    }
+}
+
+[HttpPut("{id}")]
+public IActionResult UpdateBookForAuthor(Guid authorId, Guid id,
+    [FromBody] BookForUpdateDto book)
+{
+    if (book == null)
+    {
+        return BadRequest();
+    }
+
+    if (book.Description == book.Title)
+    {
+        ModelState.AddModelError(nameof(BookForUpdateDto),
+            "The provided description should be different from the title.");
+    }
+
+    if (!ModelState.IsValid)
+    {
+        return new UnprocessableEntityObjectResult(ModelState);
+    }
+
 ```
