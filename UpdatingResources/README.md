@@ -1,4 +1,13 @@
+- [Index](https://github.com/KiraDiShira/RESTful-API#restful-api)
+
 # Updating resources
+
+- [Updating a Resource](#updating-a-resource)
+- [Updating Collection Resources](#updating-collection-resources)
+- [Upserting](#upserting)
+- [Partially Updating a Resource](#partially-updating-a-resource)
+- [Upserting with PATCH](#upserting-with-patch)
+- [HTTP Method Overview by Use Case](#http-method-overview-by-use-case)
 
 ## Updating a Resource 
 
@@ -223,6 +232,3 @@ public IActionResult PartiallyUpdateBookForAuthor(Guid authorId, Guid id, [FromB
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/UpdatingResources/Images/ur8.PNG" />
 
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/UpdatingResources/Images/ur9.PNG" />
-
-
-
