@@ -20,3 +20,44 @@ As far as paging is concerned, the consumer should be able to choose the page nu
 ## The Principle of Deferred Execution
 
 When working with Entity Framework Core, we use linq to build our queries. With deferred execution, the query valuable itself never holds the query results, and only stores the query commands. Execution of the query is deferred until the query variable is iterated over. **Deferred execution** means that query execution occurs sometime after the query has been constructed. We can get this behavior by working with iQueryable implementing collections. iQueryable T allows us to execute a query against a specific data source, and while building upon it, it creates an expression tree. That's those query commands, but the query itself, isn't actually sent to the data store until iteration happens. Iteration can happen in different ways. One way is by using an iQueryable in a loop. Another, is by calling into something like ToList(), ToArray(), or ToDictionary() on it because that means converting the expression tree to an actual list of items. Another way is by calling singleton queries. Singleton queries are queries like average, count, and first, because, to get the count, or first item of an iQueryable, the list has to be iterated over. As long as we can avoid that, we can build our query by, for example, adding take and skip statements for paging and assure it's only executed after that. 
+
+```c#
+public class AuthorsResourceParameters
+{
+    const int maxPageSize = 20;
+    public int PageNumber { get; set; } = 1;
+
+    private int _pageSize = 10;
+    public int PageSize
+    {
+        get
+        {
+            return _pageSize;
+        }
+        set
+        {
+            _pageSize = (value > maxPageSize) ? maxPageSize : value;
+        }
+    }
+}
+
+[HttpGet()]
+public IActionResult GetAuthors(AuthorsResourceParameters authorsResourceParameters)
+{
+    var authorsFromRepo = _libraryRepository.GetAuthors(authorsResourceParameters);
+
+...
+
+public IEnumerable<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
+{
+    return _context.Authors.
+        OrderBy(a => a.FirstName)
+        .ThenBy(a => a.LastName)
+        .Skip(authorsResourceParameters.PageSize * (authorsResourceParameters.PageNumber -1))
+        .Take(authorsResourceParameters.PageSize)
+        .ToList();
+}
+
+http://localhost:6058/api/authors?pageNumber=2&pageSize=5
+
+```
