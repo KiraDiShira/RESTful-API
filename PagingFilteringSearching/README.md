@@ -7,7 +7,7 @@
 
 ## Paging Through Collection Resources
 
-Most APIs, just like ours, expose collection resources. In our case, that's authors and books, and these collection resources can grow quite large. It's considered best practice to always implement paging on each resource collection or, at least, on those resources that can also be created. This is to avoid unintended negative effects on performance when the resource collection grows. Not having paging on the list of ten authors might be okay, but if our API allows creating authors, this list can grow, and we don't want to end up with accidentally returning thousands of authors in one response, as that will definitely have an adverse effect on performance. 
+Most APIs expose collection resources. In our case, that's authors and books, and these collection resources can grow quite large. It's considered best practice to always implement paging on each resource collection or, at least, on those resources that can also be created. This is to avoid unintended negative effects on performance when the resource collection grows. Not having paging on the list of ten authors might be okay, but if our API allows creating authors, this list can grow, and we don't want to end up with accidentally returning thousands of authors in one response, as that will definitely have an adverse effect on performance. 
 
 If you remember from the second module, where we designed the outer-facing contract, options like paging, sorting, filtering, and others are passed through via the query string. These are not resources in their own right. They're parameters that manipulate a resource collection that's returned. 
 
