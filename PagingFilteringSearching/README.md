@@ -4,6 +4,7 @@
 
 - [Paging Through Collection Resources](#paging-through-collection-resources)
 - [The Principle of Deferred Execution](#the-principle-of-deferred-execution)
+- [Returning pagination metadata](#returning-pagination-metadata)
 
 ## Paging Through Collection Resources
 
@@ -61,3 +62,15 @@ public IEnumerable<Author> GetAuthors(AuthorsResourceParameters authorsResourceP
 http://localhost:6058/api/authors?pageNumber=2&pageSize=5
 
 ```
+
+## Returning pagination metadata
+
+Let's think about what would be useful for the consumer of the API to know about a page set of data. At the very least, we should include URIs to request the previous and next pages, so the consumer doesn't have to construct those himself. Additional information, like total count or total amount of pages, is often included as well, just like page number and/or page size. 
+
+How do we include this data in a response then? Well, what's often done, and you've probably already encountered this if you've worked with third party APIs, like Facebook's, is that paging information is included in the response body itself. Often with a metadata tag or paging info tag, but this isn't correct. 
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/PagingFilteringSearching/Images/pfs1.PNG" />
+
+If a consumer of the API requests a page of authors, with the application/json media type as value for the accept header, the API should return a JSON representation of the resource. An envelope that has a results field and metadata field, well, that doesn't match the media type we asked for. It's not a JSON representation of the authors collection; it's a different media type. Returning the paging info like this combined with application/json as media type, effectively breaks REST, as we are no longer adhering to the self-descriptive message constraint. That constraint states that each message must contain enough information on how to process it. Next to returning the wrong representation, the response will have content-type pattern with value application/json, which doesn't match the content of the response. In other words, we also don't tell the consumer how to process it. The consumer doesn't know how to interpret the response judging from the content-type. We will learn a lot more media types in the next module because, to be honest, application/json isn't such a good media type to ask for a header. But more on that later.
+
+When requesting application/json, paging information isn't part of the resource representation. It's metadata related to that resource. Metadata, well, that's something that's put in a response header. The consumer can empower that header to get that information. We should create a custom pagination header, like X-Pagination.
