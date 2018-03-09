@@ -74,3 +74,145 @@ How do we include this data in a response then? Well, what's often done, and you
 If a consumer of the API requests a page of authors, with the application/json media type as value for the accept header, the API should return a JSON representation of the resource. An envelope that has a results field and metadata field, well, that doesn't match the media type we asked for. It's not a JSON representation of the authors collection; it's a different media type. Returning the paging info like this combined with application/json as media type, effectively breaks REST, as we are no longer adhering to the self-descriptive message constraint. That constraint states that each message must contain enough information on how to process it. Next to returning the wrong representation, the response will have content-type pattern with value application/json, which doesn't match the content of the response. In other words, we also don't tell the consumer how to process it. The consumer doesn't know how to interpret the response judging from the content-type. We will learn a lot more media types in the next module because, to be honest, application/json isn't such a good media type to ask for a header. But more on that later.
 
 When requesting application/json, paging information isn't part of the resource representation. It's metadata related to that resource. Metadata, well, that's something that's put in a response header. The consumer can empower that header to get that information. We should create a custom pagination header, like X-Pagination.
+
+```c#
+public class PagedList<T> : List<T>
+{
+    public int CurrentPage { get; }
+    public int TotalPages { get; }
+    public int PageSize { get; }
+    public int TotalCount { get; }
+
+    public bool HasPrevious
+    {
+        get
+        {
+            return (CurrentPage > 1);
+        }
+    }
+
+    public bool HasNext
+    {
+        get
+        {
+            return (CurrentPage < TotalPages);
+        }
+    }
+
+    public PagedList(List<T> items, int count, int pageNumber, int pageSize)
+    {
+        TotalCount = count;
+        PageSize = pageSize;
+        CurrentPage = pageNumber;
+        TotalPages = (int)Math.Ceiling(count / (double)pageSize);
+        AddRange(items);
+    }
+    
+    public static PagedList<T> Create(IQueryable<T> source, int pageNumber, int pageSize)
+    {
+        var count = source.Count();
+        var items = source.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
+        return new PagedList<T>(items, count, pageNumber, pageSize);
+    }
+}
+```
+
+Now, we won't directly call this constructor. Instead, we'll add a static method, create, that will create this page list for us. This allows us to call pagelist.create, passing an iQueryable, which is exactly what we get after applying the order by class in our repository. All casting and calculations required can then be done in this create method, rather than having to do that before creating the page list.
+
+```c#
+ public interface ILibraryRepository
+ {
+    //IEnumerable<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters);
+    PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters);
+    
+public PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
+{
+    var collectionBeforePaging =
+        _context.Authors
+            .OrderBy(a => a.FirstName)
+            .ThenBy(a => a.LastName)
+            .AsQueryable();
+
+    return PagedList<Author>.Create(collectionBeforePaging,
+        authorsResourceParameters.PageNumber,
+        authorsResourceParameters.PageSize);
+}
+
+services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+services.AddScoped<IUrlHelper>(implementationFactory =>
+{
+    var actionContext = implementationFactory.GetService<IActionContextAccessor>()
+        .ActionContext;
+    return new UrlHelper(actionContext);
+});
+
+private readonly IUrlHelper _urlHelper;
+
+public AuthorsController(ILibraryRepository libraryRepository, IUrlHelper urlHelper)
+{
+    _libraryRepository = libraryRepository;
+    _urlHelper = urlHelper;
+}
+
+[HttpGet(Name = "GetAuthors")]
+public IActionResult GetAuthors(AuthorsResourceParameters authorsResourceParameters)
+{
+    PagedList<Author> authorsFromRepo = _libraryRepository.GetAuthors(authorsResourcePara
+
+    var previousPageLink = authorsFromRepo.HasPrevious ?
+        CreateAuthorsResourceUri(authorsResourceParameters,
+            ResourceUriType.PreviousPage) : null;
+
+    var nextPageLink = authorsFromRepo.HasNext ?
+        CreateAuthorsResourceUri(authorsResourceParameters,
+            ResourceUriType.NextPage) : null;
+
+    var paginationMetadata = new
+    {
+        totalCount = authorsFromRepo.TotalCount,
+        pageSize = authorsFromRepo.PageSize,
+        currentPage = authorsFromRepo.CurrentPage,
+        totalPages = authorsFromRepo.TotalPages,
+        previousPageLink = previousPageLink,
+        nextPageLink = nextPageLink
+    };
+
+    Response.Headers.Add("X-Pagination",
+        Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
+
+    var authors = Mapper.Map<IEnumerable<AuthorDto>>(authorsFromRepo);
+
+    return Ok(authors);
+}
+
+private string CreateAuthorsResourceUri(
+    AuthorsResourceParameters authorsResourceParameters,
+    ResourceUriType type)
+{
+    switch (type)
+    {
+        case ResourceUriType.PreviousPage:
+            return _urlHelper.Link("GetAuthors",
+                new
+                {
+                    pageNumber = authorsResourceParameters.PageNumber - 1,
+                    pageSize = authorsResourceParameters.PageSize
+                });
+        case ResourceUriType.NextPage:
+            return _urlHelper.Link("GetAuthors",
+                new
+                {
+                    pageNumber = authorsResourceParameters.PageNumber + 1,
+                    pageSize = authorsResourceParameters.PageSize
+                });
+        default:
+            return _urlHelper.Link("GetAuthors",
+                new
+                {
+                    pageNumber = authorsResourceParameters.PageNumber,
+                    pageSize = authorsResourceParameters.PageSize
+                });
+    }
+}
+
+```
