@@ -8,7 +8,7 @@
 
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/SortingAndDataShaping/Images/Sds1.PNG" />
 
-```
+```c#
 public class AuthorsResourceParameters
 {
     ...
@@ -16,3 +16,4 @@ public class AuthorsResourceParameters
 }
 
 ```
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/SortingAndDataShaping/Images/Sds2.PNG" />
