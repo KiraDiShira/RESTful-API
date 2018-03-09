@@ -9,5 +9,10 @@
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/SortingAndDataShaping/Images/Sds1.PNG" />
 
 ```
-http://host/api/authors?pageNumber=1&pageSize=5
+public class AuthorsResourceParameters
+{
+    ...
+    public string OrderBy { get; set; } = "Name";
+}
+
 ```
