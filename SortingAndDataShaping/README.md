@@ -3,6 +3,7 @@
 # Implementing Sorting and Data Shaping 
 
 - [Sorting Collection Resources](#sorting-collection-resources)
+- [Shaping Resources](#shaping-resources)
 
 ## Sorting Collection Resources
 
@@ -272,3 +273,11 @@ public IActionResult GetAuthors(AuthorsResourceParameters authorsResourceParamet
     }
     ...
 ```
+
+## Shaping Resources
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/SortingAndDataShaping/Images/Sds4.PNG" />
+
+But with data shaping, we no longer want to return an IEnumerable of AuthorDTO. We want to return an IEnumerable of a new object, one that only contains the requested fields. We need a way to dynamically create an object that runtime starting from our AuthorDTO. So we're going to work with dynamically typed objects in this demo. This is where the ExpandoObject comes in. ExpandoObject represents an object whose members can be dynamically added and removed at runtime. The extension method we want to create, it doesn't matter to that extends. IEnumerable of T accepts our fields and returns an IEnumerable of dynamically typed objects, ExpandoObjects that only contain the fields we requested.
+
+
