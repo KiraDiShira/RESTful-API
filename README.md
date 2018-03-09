@@ -6,3 +6,4 @@
 - [Updating resources](https://github.com/KiraDiShira/RESTful-API/tree/master/UpdatingResources#updating-resources)
 - [Working with Validation and Logging](https://github.com/KiraDiShira/RESTful-API/tree/master/ValidationAndLogging#working-with-validation-and-logging)
 - [Implementing Paging, Filtering, and Searching](https://github.com/KiraDiShira/RESTful-API/blob/master/PagingFilteringSearching/README.md#implementing-paging-filtering-and-searching)
+- [Implementing Sorting and Data Shaping]
