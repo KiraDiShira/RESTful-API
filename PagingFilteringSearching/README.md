@@ -216,3 +216,5 @@ private string CreateAuthorsResourceUri(
 }
 
 ```
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/PagingFilteringSearching/Images/pfs2.PNG" />
