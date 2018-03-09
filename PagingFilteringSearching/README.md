@@ -223,3 +223,147 @@ private string CreateAuthorsResourceUri(
 ## Filtering and Searching
 
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/PagingFilteringSearching/Images/pfs3.PNG" />
+
+### Filtering
+
+```
+public class AuthorsResourceParameters
+{
+    ...
+
+    public string Genre { get; set; }
+}
+
+public PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
+{
+    var collectionBeforePaging =
+        _context.Authors
+            .OrderBy(a => a.FirstName)
+            .ThenBy(a => a.LastName)
+            .AsQueryable();
+
+    if (!string.IsNullOrEmpty(authorsResourceParameters.Genre))
+    {
+        var genreForWhereClause = authorsResourceParameters.Genre
+            .Trim().ToLowerInvariant();
+        collectionBeforePaging = collectionBeforePaging
+            .Where(a => a.Genre.ToLowerInvariant() == genreForWhereClause);
+    }
+
+    return PagedList<Author>.Create(collectionBeforePaging,
+        authorsResourceParameters.PageNumber,
+        authorsResourceParameters.PageSize);
+}
+
+private string CreateAuthorsResourceUri(
+    AuthorsResourceParameters authorsResourceParameters,
+    ResourceUriType type)
+{
+    switch (type)
+    {
+        case ResourceUriType.PreviousPage:
+            return _urlHelper.Link("GetAuthors",
+                new
+                {
+                    genre = authorsResourceParameters.Genre,
+                    ...
+                });
+        case ResourceUriType.NextPage:
+            return _urlHelper.Link("GetAuthors",
+                new
+                {
+                    genre = authorsResourceParameters.Genre,
+                    ...
+                });
+
+        default:
+            return _urlHelper.Link("GetAuthors",
+                new
+                {              
+                    genre = authorsResourceParameters.Genre,
+                    ...
+                });
+    }
+}
+
+```
+
+### Searching
+
+```c#
+public class AuthorsResourceParameters
+{
+    ...
+    public string SearchQuery { get; set; }
+}
+
+public PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourceParameters)
+{
+    var collectionBeforePaging =
+        _context.Authors
+            .OrderBy(a => a.FirstName)
+            .ThenBy(a => a.LastName)
+            .AsQueryable();
+
+    if (!string.IsNullOrEmpty(authorsResourceParameters.Genre))
+    {
+        var genreForWhereClause = authorsResourceParameters.Genre
+            .Trim().ToLowerInvariant();
+        collectionBeforePaging = collectionBeforePaging
+            .Where(a => a.Genre.ToLowerInvariant() == genreForWhereClause);
+    }
+
+    if (!string.IsNullOrEmpty(authorsResourceParameters.SearchQuery))
+    {
+        var searchQueryForWhereClause = authorsResourceParameters.SearchQuery
+            .Trim().ToLowerInvariant();
+
+        collectionBeforePaging = collectionBeforePaging
+            .Where(a => a.Genre.ToLowerInvariant().Contains(searchQueryForWhereClause)
+                        || a.FirstName.ToLowerInvariant().Contains(searchQueryForWhereClause)
+                        || a.LastName.ToLowerInvariant().Contains(searchQueryForWhereClause));
+    }
+
+    return PagedList<Author>.Create(collectionBeforePaging,
+        authorsResourceParameters.PageNumber,
+        authorsResourceParameters.PageSize);
+}
+
+private string CreateAuthorsResourceUri(
+    AuthorsResourceParameters authorsResourceParameters,
+    ResourceUriType type)
+{
+    switch (type)
+    {
+        case ResourceUriType.PreviousPage:
+            return _urlHelper.Link("GetAuthors",
+                new
+                {
+                    searchQuery = authorsResourceParameters.SearchQuery,
+                    genre = authorsResourceParameters.Genre,
+                    pageNumber = authorsResourceParameters.PageNumber - 1,
+                    pageSize = authorsResourceParameters.PageSize
+                });
+        case ResourceUriType.NextPage:
+            return _urlHelper.Link("GetAuthors",
+                new
+                {
+                    searchQuery = authorsResourceParameters.SearchQuery,
+                    genre = authorsResourceParameters.Genre,
+                    pageNumber = authorsResourceParameters.PageNumber + 1,
+                    pageSize = authorsResourceParameters.PageSize
+                });
+
+        default:
+            return _urlHelper.Link("GetAuthors",
+                new
+                {
+                    searchQuery = authorsResourceParameters.SearchQuery,
+                    genre = authorsResourceParameters.Genre,
+                    pageNumber = authorsResourceParameters.PageNumber,
+                    pageSize = authorsResourceParameters.PageSize
+                });
+    }
+}
+
+```
