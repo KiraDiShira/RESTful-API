@@ -5,6 +5,7 @@
 - [Paging Through Collection Resources](#paging-through-collection-resources)
 - [The Principle of Deferred Execution](#the-principle-of-deferred-execution)
 - [Returning pagination metadata](#returning-pagination-metadata)
+- [Filtering and Searching](#filtering-and-searching)
 
 ## Paging Through Collection Resources
 
@@ -218,3 +219,7 @@ private string CreateAuthorsResourceUri(
 ```
 
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/PagingFilteringSearching/Images/pfs2.PNG" />
+
+## Filtering and Searching
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/PagingFilteringSearching/Images/pfs3.PNG" />
