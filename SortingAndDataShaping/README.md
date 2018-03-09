@@ -204,3 +204,26 @@ public PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourcePar
 
 
 ```
+
+```
+http://localhost:6058/api/authors?orderBy=age,genre desc
+```
+
+If we use this link:
+
+```
+http://localhost:6058/api/authors?orderBy=dateofbirth
+```
+we will get a 500 status code fault because of this exception:
+
+```c#
+// find the matching property
+if (!mappingDictionary.ContainsKey(propertyName))
+{
+    throw new ArgumentException($"Key mapping for {propertyName} is missing");
+}
+```
+
+And this is not good because this is a consumer error.
+
+### Taking Consumer Errors into Account When Sorting
