@@ -168,5 +168,39 @@ public PagedList<Author> GetAuthors(AuthorsResourceParameters authorsResourcePar
 
     var collectionBeforePaging = _context.Authors.ApplySort(authorsResourceParameters.OrderBy,
         _propertyMappingService.GetPropertyMapping<AuthorDto, Author>());
+        ...
+ }
+ 
+ private string CreateAuthorsResourceUri(
+    AuthorsResourceParameters authorsResourceParameters,
+    ResourceUriType type)
+{
+    switch (type)
+    {
+        case ResourceUriType.PreviousPage:
+            return _urlHelper.Link("GetAuthors",
+                new
+                {
+                    orderBy = authorsResourceParameters.OrderBy,
+                    ...
+                });
+        case ResourceUriType.NextPage:
+            return _urlHelper.Link("GetAuthors",
+                new
+                {
+                    orderBy = authorsResourceParameters.OrderBy,
+                    ...
+                });
+
+        default:
+            return _urlHelper.Link("GetAuthors",
+                new
+                {
+                    orderBy = authorsResourceParameters.OrderBy,
+                    ...
+                });
+    }
+}
+
 
 ```
