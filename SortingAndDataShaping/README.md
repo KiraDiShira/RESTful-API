@@ -367,4 +367,13 @@ public static class IEnumerableExtensions
         return expandoObjectList;
     }
 }
+
+public class AuthorsResourceParameters
+{
+    ...
+    public string Fields { get; set; }
+}
+
+
+return Ok(authors.ShapeData(authorsResourceParameters.Fields));
 ```
