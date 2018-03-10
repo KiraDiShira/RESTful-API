@@ -2,13 +2,10 @@
 
 # Advanced HATEOAS, Media Types, and Versioning 
 
-- [Hypermedia as the Engine of Application State](#hypermedia-as-the-engine-of-application-state)
+- [HATEOAS and Content Negotiation](#hateoas-and-content-negotiation)
 
-## Hypermedia as the Engine of Application State
+## HATEOAS and Content Negotiation
 
-Currently, our APIs already quite good but it's not exactly evolvable nor is it RESTful. HATEOAS will help with this. It makes APIs evolvable and even self-describing.
-
-<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingStartedWithHATEOAS/Images/gsh1.PNG" />
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/AdvancedHATEOAS/Images/ah1.PNG" />
 
 ```
-
