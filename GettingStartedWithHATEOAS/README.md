@@ -140,4 +140,71 @@ public IActionResult CreateBookForAuthor(Guid authorId, [FromBody] BookForCreati
         CreateLinksForBook(bookToReturn));
 }
 
+[HttpGet(Name = "GetBooksForAuthor")]
+public IActionResult GetBooksForAuthor(Guid authorId)
+{
+   ...
+
+    var booksForAuthor = Mapper.Map<IEnumerable<BookDto>>(booksForAuthoreFromRepo);
+
+    booksForAuthor = booksForAuthor.Select(book =>
+    {
+        book = CreateLinksForBook(book);
+        return book;
+    });
+
+    return Ok(booksForAuthor);
+}
+
+```
+```
+GET ---> http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books
+```
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingStartedWithHATEOAS/Images/gsh10.PNG" />
+
+We also see that for each book, the links are included. So that's great. But what we're not getting back are the actions on the books resource itself. We only have actions available on each separate book. We can't just add a links property to this JSON because it would result in an invalid JSON. So we're going to need a wrapper class. Let's add a new class and name it LinkedCollectionResourceWrapperDto.
+
+```c#
+public class LinkedCollectionResourceWrapperDto<T> : LinkedResourceBaseDto
+    where T : LinkedResourceBaseDto
+{
+    public IEnumerable<T> Value { get; set; }
+
+    public LinkedCollectionResourceWrapperDto(IEnumerable<T> value)
+    {
+        Value = value;
+    }
+}
+
+private LinkedCollectionResourceWrapperDto<BookDto> CreateLinksForBooks(
+    LinkedCollectionResourceWrapperDto<BookDto> booksWrapper)
+{
+    // link to self
+    booksWrapper.Links.Add(
+        new LinkDto(_urlHelper.Link("GetBooksForAuthor", new { }),
+        "self",
+        "GET"));
+
+    return booksWrapper;
+}
+
+[HttpGet(Name = "GetBooksForAuthor")]
+public IActionResult GetBooksForAuthor(Guid authorId)
+{
+    ...
+
+    var booksForAuthor = Mapper.Map<IEnumerable<BookDto>>(booksForAuthorFromRepo);
+
+    booksForAuthor = booksForAuthor.Select(book =>
+    {
+        book = CreateLinksForBook(book);
+        return book;
+    });
+
+    var wrapper = new LinkedCollectionResourceWrapperDto<BookDto>(booksForAuthor);
+
+    return Ok(CreateLinksForBooks(wrapper));
+}
+
 ```
