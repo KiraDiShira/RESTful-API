@@ -29,6 +29,335 @@ First part after application is vnd, the vendor prefix. That's a reserve princip
 
 What we're actually stating here is that we want a resource representation in JSON with HATEOAS links. If that new media type is requested, the links should be included. The consumer must know about this media type and how to process it. That's what documentation is for. If this media type isn't requested, so we simply request application/json, the links should not be included. 
 
+```c#
+    services.AddMvc(setupAction =>
+    {
+        ...
 
+        var jsonOutputFormatter = setupAction.OutputFormatters
+            .OfType<JsonOutputFormatter>().FirstOrDefault();
 
+        if (jsonOutputFormatter != null)
+        {
+            jsonOutputFormatter.SupportedMediaTypes.Add("application/vnd.marvin.hateoas+json");
+        }
+    })
+    
+    
+ [HttpGet(Name = "GetAuthors")]
+public IActionResult GetAuthors(AuthorsResourceParameters authorsResourceParameters,
+    [FromHeader(Name = "Accept")] string mediaType)
+{
+    if (!_propertyMappingService.ValidMappingExistsFor<AuthorDto, Author>
+       (authorsResourceParameters.OrderBy))
+    {
+        return BadRequest();
+    }
+
+    if (!_typeHelperService.TypeHasProperties<AuthorDto>
+        (authorsResourceParameters.Fields))
+    {
+        return BadRequest();
+    }
+
+    var authorsFromRepo = _libraryRepository.GetAuthors(authorsResourceParameters);
+
+    var authors = Mapper.Map<IEnumerable<AuthorDto>>(authorsFromRepo);
+
+    if (mediaType == "application/vnd.marvin.hateoas+json")
+    {
+        var paginationMetadata = new
+        {
+            totalCount = authorsFromRepo.TotalCount,
+            pageSize = authorsFromRepo.PageSize,
+            currentPage = authorsFromRepo.CurrentPage,
+            totalPages = authorsFromRepo.TotalPages,
+        };
+
+        Response.Headers.Add("X-Pagination",
+            Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
+
+        var links = CreateLinksForAuthors(authorsResourceParameters,
+            authorsFromRepo.HasNext, authorsFromRepo.HasPrevious);
+
+        var shapedAuthors = authors.ShapeData(authorsResourceParameters.Fields);
+
+        var shapedAuthorsWithLinks = shapedAuthors.Select(author =>
+        {
+            var authorAsDictionary = author as IDictionary<string, object>;
+            var authorLinks = CreateLinksForAuthor(
+                (Guid)authorAsDictionary["Id"], authorsResourceParameters.Fields);
+
+            authorAsDictionary.Add("links", authorLinks);
+
+            return authorAsDictionary;
+        });
+
+        var linkedCollectionResource = new
+        {
+            value = shapedAuthorsWithLinks,
+            links = links
+        };
+
+        return Ok(linkedCollectionResource);
+    }
+    else
+    {
+        var previousPageLink = authorsFromRepo.HasPrevious ?
+            CreateAuthorsResourceUri(authorsResourceParameters,
+            ResourceUriType.PreviousPage) : null;
+
+        var nextPageLink = authorsFromRepo.HasNext ?
+            CreateAuthorsResourceUri(authorsResourceParameters,
+            ResourceUriType.NextPage) : null;
+
+        var paginationMetadata = new
+        {
+            previousPageLink = previousPageLink,
+            nextPageLink = nextPageLink,
+            totalCount = authorsFromRepo.TotalCount,
+            pageSize = authorsFromRepo.PageSize,
+            currentPage = authorsFromRepo.CurrentPage,
+            totalPages = authorsFromRepo.TotalPages
+        };
+
+        Response.Headers.Add("X-Pagination",
+            Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
+
+        return Ok(authors.ShapeData(authorsResourceParameters.Fields));
+    }
+}
+
+```
+```
+GET ---> http://localhost:6058/api/authors
+Headers: Accept: application/json
+
+[
+    {
+        "id": "f74d6899-9ed2-4137-9876-66b070553f8f",
+        "name": "Douglas Adams",
+        "age": 65,
+        "genre": "Science fiction"
+    },
+    {
+        "id": "76053df4-6687-4353-8937-b45556748abe",
+        "name": "George RR Martin",
+        "age": 69,
+        "genre": "Fantasy"
+    },
+    {
+        "id": "a1da1d8e-1988-4634-b538-a01709477b77",
+        "name": "Jens Lapidus",
+        "age": 43,
+        "genre": "Thriller"
+    },
+    {
+        "id": "412c3012-d891-4f5e-9613-ff7aa63e6bb3",
+        "name": "Neil Gaiman",
+        "age": 57,
+        "genre": "Fantasy"
+    },
+    {
+        "id": "25320c5e-f58a-4b1f-b63a-8ee07a840bdf",
+        "name": "Stephen King",
+        "age": 70,
+        "genre": "Horror"
+    },
+    {
+        "id": "578359b7-1967-41d6-8b87-64ab7605587e",
+        "name": "Tom Lanoye",
+        "age": 59,
+        "genre": "Various"
+    }
+]
+
+Response header: x-pagination →{"previousPageLink":null,"nextPageLink":null,"totalCount":6,"pageSize":10,"currentPage":1,"totalPages":1}
+```
+
+```
+GET ---> http://localhost:6058/api/authors
+Headers: Accept: application/vnd.marvin.hateoas+json
+
+{
+    "value": [
+        {
+            "id": "f74d6899-9ed2-4137-9876-66b070553f8f",
+            "name": "Douglas Adams",
+            "age": 65,
+            "genre": "Science fiction",
+            "links": [
+                {
+                    "href": "http://localhost:6058/api/authors/f74d6899-9ed2-4137-9876-66b070553f8f",
+                    "rel": "self",
+                    "method": "GET"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/f74d6899-9ed2-4137-9876-66b070553f8f",
+                    "rel": "delete_author",
+                    "method": "DELETE"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/f74d6899-9ed2-4137-9876-66b070553f8f/books",
+                    "rel": "create_book_for_author",
+                    "method": "POST"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/f74d6899-9ed2-4137-9876-66b070553f8f/books",
+                    "rel": "books",
+                    "method": "GET"
+                }
+            ]
+        },
+        {
+            "id": "76053df4-6687-4353-8937-b45556748abe",
+            "name": "George RR Martin",
+            "age": 69,
+            "genre": "Fantasy",
+            "links": [
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe",
+                    "rel": "self",
+                    "method": "GET"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe",
+                    "rel": "delete_author",
+                    "method": "DELETE"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books",
+                    "rel": "create_book_for_author",
+                    "method": "POST"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books",
+                    "rel": "books",
+                    "method": "GET"
+                }
+            ]
+        },
+        {
+            "id": "a1da1d8e-1988-4634-b538-a01709477b77",
+            "name": "Jens Lapidus",
+            "age": 43,
+            "genre": "Thriller",
+            "links": [
+                {
+                    "href": "http://localhost:6058/api/authors/a1da1d8e-1988-4634-b538-a01709477b77",
+                    "rel": "self",
+                    "method": "GET"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/a1da1d8e-1988-4634-b538-a01709477b77",
+                    "rel": "delete_author",
+                    "method": "DELETE"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/a1da1d8e-1988-4634-b538-a01709477b77/books",
+                    "rel": "create_book_for_author",
+                    "method": "POST"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/a1da1d8e-1988-4634-b538-a01709477b77/books",
+                    "rel": "books",
+                    "method": "GET"
+                }
+            ]
+        },
+        {
+            "id": "412c3012-d891-4f5e-9613-ff7aa63e6bb3",
+            "name": "Neil Gaiman",
+            "age": 57,
+            "genre": "Fantasy",
+            "links": [
+                {
+                    "href": "http://localhost:6058/api/authors/412c3012-d891-4f5e-9613-ff7aa63e6bb3",
+                    "rel": "self",
+                    "method": "GET"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/412c3012-d891-4f5e-9613-ff7aa63e6bb3",
+                    "rel": "delete_author",
+                    "method": "DELETE"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/412c3012-d891-4f5e-9613-ff7aa63e6bb3/books",
+                    "rel": "create_book_for_author",
+                    "method": "POST"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/412c3012-d891-4f5e-9613-ff7aa63e6bb3/books",
+                    "rel": "books",
+                    "method": "GET"
+                }
+            ]
+        },
+        {
+            "id": "25320c5e-f58a-4b1f-b63a-8ee07a840bdf",
+            "name": "Stephen King",
+            "age": 70,
+            "genre": "Horror",
+            "links": [
+                {
+                    "href": "http://localhost:6058/api/authors/25320c5e-f58a-4b1f-b63a-8ee07a840bdf",
+                    "rel": "self",
+                    "method": "GET"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/25320c5e-f58a-4b1f-b63a-8ee07a840bdf",
+                    "rel": "delete_author",
+                    "method": "DELETE"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/25320c5e-f58a-4b1f-b63a-8ee07a840bdf/books",
+                    "rel": "create_book_for_author",
+                    "method": "POST"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/25320c5e-f58a-4b1f-b63a-8ee07a840bdf/books",
+                    "rel": "books",
+                    "method": "GET"
+                }
+            ]
+        },
+        {
+            "id": "578359b7-1967-41d6-8b87-64ab7605587e",
+            "name": "Tom Lanoye",
+            "age": 59,
+            "genre": "Various",
+            "links": [
+                {
+                    "href": "http://localhost:6058/api/authors/578359b7-1967-41d6-8b87-64ab7605587e",
+                    "rel": "self",
+                    "method": "GET"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/578359b7-1967-41d6-8b87-64ab7605587e",
+                    "rel": "delete_author",
+                    "method": "DELETE"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/578359b7-1967-41d6-8b87-64ab7605587e/books",
+                    "rel": "create_book_for_author",
+                    "method": "POST"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/578359b7-1967-41d6-8b87-64ab7605587e/books",
+                    "rel": "books",
+                    "method": "GET"
+                }
+            ]
+        }
+    ],
+    "links": [
+        {
+            "href": "http://localhost:6058/api/authors?orderBy=Name&pageNumber=1&pageSize=10",
+            "rel": "self",
+            "method": "GET"
+        }
+    ]
+}
+
+Response header: x-pagination →{"totalCount":6,"pageSize":10,"currentPage":1,"totalPages":1}
 ```
