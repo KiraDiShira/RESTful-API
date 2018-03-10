@@ -25,8 +25,10 @@ The solution is creating a new media type. So how do we do that? Well, there's a
 ```
 application/vnd.marvin.hateoas+json
 ```
+First part after application is vnd, the vendor prefix. That's a reserve principle has to begin the mime type with. It indicates that this is a content type that's vendor specific. It's then followed by a custom identifier of the vendor and possibly additional values. A good one to use in our case would be vnd.marvin.hateoas, as you see onscreen. Vnd plus my company, which happens to be called Marvin, the paranoid android from Douglas Adams' Hitchiker's Guide to the Galaxy books and then followed by HATEOAS, stating we want to include those resources links. Then we add a plus sign and JSON. 
+
+What we're actually stating here is that we want a resource representation in JSON with HATEOAS links. If that new media type is requested, the links should be included. The consumer must know about this media type and how to process it. That's what documentation is for. If this media type isn't requested, so we simply request application/json, the links should not be included. 
 
 
-onscreen. First part after application is vnd, the vendor prefix. That's a reserve principle has to begin the mime type with. It indicates that this is a content type that's vendor specific. It's then followed by a custom identifier of the vendor and possibly additional values. A good one to use in our case would be vnd.marvin.hateoas, as you see onscreen. Vnd plus my company, which happens to be called Marvin, the paranoid android from Douglas Adams' Hitchiker's Guide to the Galaxy books and then followed by HATEOAS, stating we want to include those resources links. Then we add a plus sign and JSON. What we're actually stating here is that we want a resource representation in JSON with HATEOAS links. If that new media type is requested, the links should be included. The consumer must know about this media type and how to process it. That's what documentation is for. If this media type isn't requested, so we simply request application/json, the links should not be included. Let's see how we can support this with a demo.
 
 ```
