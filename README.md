@@ -8,3 +8,4 @@
 - [Implementing Paging, Filtering, and Searching](https://github.com/KiraDiShira/RESTful-API/blob/master/PagingFilteringSearching/README.md#implementing-paging-filtering-and-searching)
 - [Implementing Sorting and Data Shaping](https://github.com/KiraDiShira/RESTful-API/blob/master/SortingAndDataShaping/README.md#implementing-sorting-and-data-shaping)
 - [Getting Started with HATEOAS](https://github.com/KiraDiShira/RESTful-API/blob/master/GettingStartedWithHATEOAS/README.md#getting-started-with-hateoas)
+- [Advanced HATEOAS, Media Types, and Versioning]
