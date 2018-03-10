@@ -313,3 +313,109 @@ GET ---> http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/
 }
 ```
 ## Dynamically typed approach
+
+```c#
+private IEnumerable<LinkDto> CreateLinksForAuthor(Guid id, string fields)
+{
+    var links = new List<LinkDto>();
+
+    if (string.IsNullOrWhiteSpace(fields))
+    {
+        links.Add(
+            new LinkDto(_urlHelper.Link("GetAuthor", new { id = id }),
+                "self",
+                "GET"));
+    }
+    else
+    {
+        links.Add(
+            new LinkDto(_urlHelper.Link("GetAuthor", new { id = id, fields = fields }),
+                "self",
+                "GET"));
+    }
+
+    links.Add(
+        new LinkDto(_urlHelper.Link("DeleteAuthor", new { id = id }),
+            "delete_author",
+            "DELETE"));
+
+    links.Add(
+        new LinkDto(_urlHelper.Link("CreateBookForAuthor", new { authorId = id }),
+            "create_book_for_author",
+            "POST"));
+
+    links.Add(
+        new LinkDto(_urlHelper.Link("GetBooksForAuthor", new { authorId = id }),
+            "books",
+            "GET"));
+
+    return links;
+}
+
+[HttpGet("{id}", Name = "GetAuthor")]
+public IActionResult GetAuthor(Guid id, [FromQuery] string fields)
+{
+   ...
+
+    var links = CreateLinksForAuthor(id, fields);
+
+    var linkedResourceToReturn = author.ShapeData(fields)
+        as IDictionary<string, object>;
+
+    linkedResourceToReturn.Add("links", links);
+
+    return Ok(linkedResourceToReturn);
+}
+
+[HttpPost]
+public IActionResult CreateAuthor([FromBody] AuthorForCreationDto author)
+{
+   ...
+    var authorToReturn = Mapper.Map<AuthorDto>(authorEntity);
+
+    var links = CreateLinksForAuthor(authorToReturn.Id, null);
+
+    var linkedResourceToReturn = author.ShapeData(null)
+        as IDictionary<string, object>;
+
+    linkedResourceToReturn.Add("links", links);
+
+    return CreatedAtRoute("GetAuthor", new {id = linkedResourceToReturn["Id"]}, linkedResourceToReturn);
+}
+
+```
+```
+GET ---> http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe
+
+{
+    "id": "76053df4-6687-4353-8937-b45556748abe",
+    "name": "George RR Martin",
+    "age": 69,
+    "genre": "Fantasy",
+    "links": [
+        {
+            "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe",
+            "rel": "self",
+            "method": "GET"
+        },
+        {
+            "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe",
+            "rel": "delete_author",
+            "method": "DELETE"
+        },
+        {
+            "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books",
+            "rel": "create_book_for_author",
+            "method": "POST"
+        },
+        {
+            "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books",
+            "rel": "books",
+            "method": "GET"
+        }
+    ]
+}
+
+```
+
+The first thing we want to do is add a method to create the links for the authors resource.
