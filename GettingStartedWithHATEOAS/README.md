@@ -61,11 +61,83 @@ The first one, a statically typed approach, involves working with base and wrapp
 
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingStartedWithHATEOAS/Images/gsh9.PNG" />
 
+First we'll work towards supporting HATEOAS using the base and wrapper class approach.
+
 ```c#
-public class AuthorsResourceParameters
+
+public class LinkDto
+{
+    public string Href { get; }
+    public string Rel { get; }
+    public string Method { get; }
+
+    public LinkDto(string href, string rel, string method)
+    {
+        Href = href;
+        Rel = rel;
+        Method = method;
+    }
+}
+
+public abstract class LinkedResourceBaseDto
+{
+    public List<LinkDto> Links { get; set; }
+        = new List<LinkDto>();
+}
+
+public class BookDto : LinkedResourceBaseDto
 {
     ...
-    public string OrderBy { get; set; } = "Name";
+}
+
+private BookDto CreateLinksForBook(BookDto book)
+{
+    book.Links.Add(new LinkDto(_urlHelper.Link("GetBookForAuthor",
+            new { id = book.Id }),
+        "self",
+        "GET"));
+
+    book.Links.Add(
+        new LinkDto(_urlHelper.Link("DeleteBookForAuthor",
+                new { id = book.Id }),
+            "delete_book",
+            "DELETE"));
+
+    book.Links.Add(
+        new LinkDto(_urlHelper.Link("UpdateBookForAuthor",
+                new { id = book.Id }),
+            "update_book",
+            "PUT"));
+
+    book.Links.Add(
+        new LinkDto(_urlHelper.Link("PartiallyUpdateBookForAuthor",
+                new { id = book.Id }),
+            "partially_update_book",
+            "PATCH"));
+
+    return book;
+}
+
+[HttpGet("{id}", Name = "GetBookForAuthor")]
+public IActionResult GetBookForAuthor(Guid authorId, Guid id)
+{
+   ...
+
+    //return Ok(bookForAuthor);
+    return Ok(CreateLinksForBook(bookForAuthor));
+}
+
+[HttpPost(Name = "CreateBookForAuthor")]
+public IActionResult CreateBookForAuthor(Guid authorId, [FromBody] BookForCreationDto book)
+{
+    ...
+
+    //return CreatedAtRoute("GetBookForAuthor", 
+    //    new { authorId = authorId, id = bookToReturn.Id }, bookToReturn);
+
+    return CreatedAtRoute("GetBookForAuthor",
+        new { authorId = authorId, id = bookToReturn.Id },
+        CreateLinksForBook(bookToReturn));
 }
 
 ```
