@@ -208,3 +208,103 @@ public IActionResult GetBooksForAuthor(Guid authorId)
 }
 
 ```
+
+```
+GET ---> http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books
+
+{
+    "value": [
+        {
+            "id": "09af5a52-9421-44e8-a2bb-a6b9ccbc8239",
+            "title": "A Dance with Dragons",
+            "description": "A Dance with Dragons is the fifth of seven planned novels in the epic fantasy series A Song of Ice and Fire by American author George R. R. Martin.",
+            "authorId": "76053df4-6687-4353-8937-b45556748abe",
+            "links": [
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books/09af5a52-9421-44e8-a2bb-a6b9ccbc8239",
+                    "rel": "self",
+                    "method": "GET"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books/09af5a52-9421-44e8-a2bb-a6b9ccbc8239",
+                    "rel": "delete_book",
+                    "method": "DELETE"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books/09af5a52-9421-44e8-a2bb-a6b9ccbc8239",
+                    "rel": "update_book",
+                    "method": "PUT"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books/09af5a52-9421-44e8-a2bb-a6b9ccbc8239",
+                    "rel": "partially_update_book",
+                    "method": "PATCH"
+                }
+            ]
+        },
+        {
+            "id": "447eb762-95e9-4c31-95e1-b20053fbe215",
+            "title": "A Game of Thrones",
+            "description": "A Game of Thrones is the first novel in A Song of Ice and Fire, a series of fantasy novels by American author George R. R. Martin. It was first published on August 1, 1996.",
+            "authorId": "76053df4-6687-4353-8937-b45556748abe",
+            "links": [
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books/447eb762-95e9-4c31-95e1-b20053fbe215",
+                    "rel": "self",
+                    "method": "GET"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books/447eb762-95e9-4c31-95e1-b20053fbe215",
+                    "rel": "delete_book",
+                    "method": "DELETE"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books/447eb762-95e9-4c31-95e1-b20053fbe215",
+                    "rel": "update_book",
+                    "method": "PUT"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books/447eb762-95e9-4c31-95e1-b20053fbe215",
+                    "rel": "partially_update_book",
+                    "method": "PATCH"
+                }
+            ]
+        },
+        {
+            "id": "bc4c35c3-3857-4250-9449-155fcf5109ec",
+            "title": "The Winds of Winter",
+            "description": "Forthcoming 6th novel in A Song of Ice and Fire.",
+            "authorId": "76053df4-6687-4353-8937-b45556748abe",
+            "links": [
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books/bc4c35c3-3857-4250-9449-155fcf5109ec",
+                    "rel": "self",
+                    "method": "GET"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books/bc4c35c3-3857-4250-9449-155fcf5109ec",
+                    "rel": "delete_book",
+                    "method": "DELETE"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books/bc4c35c3-3857-4250-9449-155fcf5109ec",
+                    "rel": "update_book",
+                    "method": "PUT"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books/bc4c35c3-3857-4250-9449-155fcf5109ec",
+                    "rel": "partially_update_book",
+                    "method": "PATCH"
+                }
+            ]
+        }
+    ],
+    "links": [
+        {
+            "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books",
+            "rel": "self",
+            "method": "GET"
+        }
+    ]
+}
+```
