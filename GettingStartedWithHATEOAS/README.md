@@ -453,4 +453,244 @@ private IEnumerable<LinkDto> CreateLinksForAuthors(
 
     return links;
 }
+
+[HttpGet(Name = "GetAuthors")]
+public IActionResult GetAuthors(AuthorsResourceParameters authorsResourceParameters)
+{
+    if (!_propertyMappingService.ValidMappingExistsFor<AuthorDto, Author>
+       (authorsResourceParameters.OrderBy))
+    {
+        return BadRequest();
+    }
+
+    if (!_typeHelperService.TypeHasProperties<AuthorDto>
+        (authorsResourceParameters.Fields))
+    {
+        return BadRequest();
+    }
+
+    var authorsFromRepo = _libraryRepository.GetAuthors(authorsResourceParameters);
+
+    var authors = Mapper.Map<IEnumerable<AuthorDto>>(authorsFromRepo);
+
+    var paginationMetadata = new
+    {
+        totalCount = authorsFromRepo.TotalCount,
+        pageSize = authorsFromRepo.PageSize,
+        currentPage = authorsFromRepo.CurrentPage,
+        totalPages = authorsFromRepo.TotalPages,
+    };
+
+    Response.Headers.Add("X-Pagination",
+        Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
+
+    var links = CreateLinksForAuthors(authorsResourceParameters,
+        authorsFromRepo.HasNext, authorsFromRepo.HasPrevious);
+
+    var shapedAuthors = authors.ShapeData(authorsResourceParameters.Fields);
+
+    var shapedAuthorsWithLinks = shapedAuthors.Select(author =>
+    {
+        var authorAsDictionary = author as IDictionary<string, object>;
+        var authorLinks = CreateLinksForAuthor(
+            (Guid)authorAsDictionary["Id"], authorsResourceParameters.Fields);
+
+        authorAsDictionary.Add("links", authorLinks);
+
+        return authorAsDictionary;
+    });
+
+    var linkedCollectionResource = new
+    {
+        value = shapedAuthorsWithLinks,
+        links = links
+    };
+
+    return Ok(linkedCollectionResource);
+}
+
 ```
+```
+GET ---> http://localhost:6058/api/authors
+
+{
+    "value": [
+        {
+            "id": "f74d6899-9ed2-4137-9876-66b070553f8f",
+            "name": "Douglas Adams",
+            "age": 65,
+            "genre": "Science fiction",
+            "links": [
+                {
+                    "href": "http://localhost:6058/api/authors/f74d6899-9ed2-4137-9876-66b070553f8f",
+                    "rel": "self",
+                    "method": "GET"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/f74d6899-9ed2-4137-9876-66b070553f8f",
+                    "rel": "delete_author",
+                    "method": "DELETE"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/f74d6899-9ed2-4137-9876-66b070553f8f/books",
+                    "rel": "create_book_for_author",
+                    "method": "POST"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/f74d6899-9ed2-4137-9876-66b070553f8f/books",
+                    "rel": "books",
+                    "method": "GET"
+                }
+            ]
+        },
+        {
+            "id": "76053df4-6687-4353-8937-b45556748abe",
+            "name": "George RR Martin",
+            "age": 69,
+            "genre": "Fantasy",
+            "links": [
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe",
+                    "rel": "self",
+                    "method": "GET"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe",
+                    "rel": "delete_author",
+                    "method": "DELETE"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books",
+                    "rel": "create_book_for_author",
+                    "method": "POST"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe/books",
+                    "rel": "books",
+                    "method": "GET"
+                }
+            ]
+        },
+        {
+            "id": "a1da1d8e-1988-4634-b538-a01709477b77",
+            "name": "Jens Lapidus",
+            "age": 43,
+            "genre": "Thriller",
+            "links": [
+                {
+                    "href": "http://localhost:6058/api/authors/a1da1d8e-1988-4634-b538-a01709477b77",
+                    "rel": "self",
+                    "method": "GET"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/a1da1d8e-1988-4634-b538-a01709477b77",
+                    "rel": "delete_author",
+                    "method": "DELETE"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/a1da1d8e-1988-4634-b538-a01709477b77/books",
+                    "rel": "create_book_for_author",
+                    "method": "POST"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/a1da1d8e-1988-4634-b538-a01709477b77/books",
+                    "rel": "books",
+                    "method": "GET"
+                }
+            ]
+        },
+        {
+            "id": "412c3012-d891-4f5e-9613-ff7aa63e6bb3",
+            "name": "Neil Gaiman",
+            "age": 57,
+            "genre": "Fantasy",
+            "links": [
+                {
+                    "href": "http://localhost:6058/api/authors/412c3012-d891-4f5e-9613-ff7aa63e6bb3",
+                    "rel": "self",
+                    "method": "GET"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/412c3012-d891-4f5e-9613-ff7aa63e6bb3",
+                    "rel": "delete_author",
+                    "method": "DELETE"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/412c3012-d891-4f5e-9613-ff7aa63e6bb3/books",
+                    "rel": "create_book_for_author",
+                    "method": "POST"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/412c3012-d891-4f5e-9613-ff7aa63e6bb3/books",
+                    "rel": "books",
+                    "method": "GET"
+                }
+            ]
+        },
+        {
+            "id": "25320c5e-f58a-4b1f-b63a-8ee07a840bdf",
+            "name": "Stephen King",
+            "age": 70,
+            "genre": "Horror",
+            "links": [
+                {
+                    "href": "http://localhost:6058/api/authors/25320c5e-f58a-4b1f-b63a-8ee07a840bdf",
+                    "rel": "self",
+                    "method": "GET"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/25320c5e-f58a-4b1f-b63a-8ee07a840bdf",
+                    "rel": "delete_author",
+                    "method": "DELETE"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/25320c5e-f58a-4b1f-b63a-8ee07a840bdf/books",
+                    "rel": "create_book_for_author",
+                    "method": "POST"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/25320c5e-f58a-4b1f-b63a-8ee07a840bdf/books",
+                    "rel": "books",
+                    "method": "GET"
+                }
+            ]
+        },
+        {
+            "id": "578359b7-1967-41d6-8b87-64ab7605587e",
+            "name": "Tom Lanoye",
+            "age": 59,
+            "genre": "Various",
+            "links": [
+                {
+                    "href": "http://localhost:6058/api/authors/578359b7-1967-41d6-8b87-64ab7605587e",
+                    "rel": "self",
+                    "method": "GET"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/578359b7-1967-41d6-8b87-64ab7605587e",
+                    "rel": "delete_author",
+                    "method": "DELETE"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/578359b7-1967-41d6-8b87-64ab7605587e/books",
+                    "rel": "create_book_for_author",
+                    "method": "POST"
+                },
+                {
+                    "href": "http://localhost:6058/api/authors/578359b7-1967-41d6-8b87-64ab7605587e/books",
+                    "rel": "books",
+                    "method": "GET"
+                }
+            ]
+        }
+    ],
+    "links": [
+        {
+            "href": "http://localhost:6058/api/authors?orderBy=Name&pageNumber=1&pageSize=10",
+            "rel": "self",
+            "method": "GET"
+        }
+    ]
+}
+```
+We're now always returning these links, but should they really be part of the resource presentation? When asking for application JSON, we already learned that what we're doing now isn't the correct implementation. To fix that, we'll have to dive into media types a bit deeper. And that's coming up next, in the Advanced HATEOAS Media Types Inversioning module.
