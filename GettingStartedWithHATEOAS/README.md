@@ -419,3 +419,38 @@ GET ---> http://localhost:6058/api/authors/76053df4-6687-4353-8937-b45556748abe
 ```
 
 The first thing we want to do is add a method to create the links for the authors resource.
+
+We support paging on the authorsResource and when we talked about paging, we discussed the various means of returning metadata. And we learned that the best place to put this is in the header. But in fact we included things in the metadata that aren't really paging metadata. The previous and next page links, these are, as we know now, links that drive application state, so we can now put the previous and next links in the links area.
+
+```c#
+private IEnumerable<LinkDto> CreateLinksForAuthors(
+    AuthorsResourceParameters authorsResourceParameters,
+    bool hasNext, bool hasPrevious)
+{
+    var links = new List<LinkDto>();
+
+    // self 
+    links.Add(
+        new LinkDto(CreateAuthorsResourceUri(authorsResourceParameters,
+                ResourceUriType.Current)
+            , "self", "GET"));
+
+    if (hasNext)
+    {
+        links.Add(
+            new LinkDto(CreateAuthorsResourceUri(authorsResourceParameters,
+                    ResourceUriType.NextPage),
+                "nextPage", "GET"));
+    }
+
+    if (hasPrevious)
+    {
+        links.Add(
+            new LinkDto(CreateAuthorsResourceUri(authorsResourceParameters,
+                    ResourceUriType.PreviousPage),
+                "previousPage", "GET"));
+    }
+
+    return links;
+}
+```
