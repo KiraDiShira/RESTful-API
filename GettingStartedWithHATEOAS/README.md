@@ -3,6 +3,7 @@
 # Getting Started with HATEOAS 
 
 - [Hypermedia as the Engine of Application State](#hypermedia-as-the-engine-of-application-state)
+- [Supporting HATOEAS](#supporting-hatoeas)
 
 ## Hypermedia as the Engine of Application State
 
@@ -51,6 +52,8 @@ For collection resources, we will need some sort of envelope, an object to hold 
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingStartedWithHATEOAS/Images/gsh8.PNG" />
 
 And this might be the moment when you're thinking, Wait a minute, this does not make sense. When we learned about paging, we learned that we couldn't use an object like this because that would break the self-descriptive message constraint. After all, when requesting the authors with media type application JSON, the representation should be an area of authors. This isn't truly RESTful, but that can be fixed. We're covering that next. For now, let's see how we can implement this in the next few clips.
+
+## Supporting HATOEAS
 
 
 
