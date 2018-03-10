@@ -55,7 +55,11 @@ And this might be the moment when you're thinking, Wait a minute, this does not 
 
 ## Supporting HATOEAS
 
+In the upcoming demos, we'll change our API so it adheres to the hypermedia as the engine of application state constraint. But, how are we going to implement this? The logic for creating the links can't just be automated, as it will depend on the business rules. For example, a book might contain links to update or delete it but also a link that's supposed to book reservations. Which only appears when some rules are met. We can't just guess what these links might be for each resource. We'll have to code this ourselves. That said, what remains a fact is that we have to add the links to the output. So, there should be a links property on each representation we're sending back to the consumer of the API. Essentially, there's two approaches I often see used for this. And, coincidence or not, we've got a case for both. 
 
+The first one, a statically typed approach, involves working with base and wrapper classes. If you think about our books controller, the get book for alter action returns a list of BookDto. We can ensure that that BookDto class inherits a class that contains links. So they can be serialized. And get books for author returns a list of books, so that's an action for which we'll have to wrap the results in a containing class so we can include the links. Second approach is a dynamically typed approach. It involves working with anonymous types and dynamics. For example, an ExpandoObject. If you think back about what we did with the get author action on our authors controller, we remember that it no longer works with the author Dto. It works with the ExpandoObject because we shaped the data before we return it. And that's a dynamically typed class. As it's an ExpandoObject, we can add links to it. For collection resources, we can wrap that in anonymous type. So, let's have a look at both approaches.
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingStartedWithHATEOAS/Images/gsh9.PNG" />
 
 ```c#
 public class AuthorsResourceParameters
