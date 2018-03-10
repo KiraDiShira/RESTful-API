@@ -459,3 +459,25 @@ private string CreateAuthorsResourceUri(
 
 ```
 <img src="https://github.com/KiraDiShira/RESTful-API/blob/master/SortingAndDataShaping/Images/Sds5.PNG" />
+
+And now we get back the IDs. But something's off. Our field name is no longer Camel-cased. Let's have a look at why that's the case, and what we can do about it.
+
+Our field names are no longer Camel-cased because the default contract resolver that serializes the output doesn't correctly work with the dictionary. The key is serialized as is instead of being CamelCased, and as an ExpandoObject uses a dictionary underneath the covers, where the key is the property name, this is the result. But, no worries, we can change that by using another contract resolver.
+
+Let's open the ConfigureServices method again on our startup class. 
+
+```c#
+services.AddMvc(setupAction =>
+{
+    setupAction.ReturnHttpNotAcceptable = true;
+    setupAction.OutputFormatters.Add(new XmlDataContractSerializerOutputFormatter());
+    setupAction.InputFormatters.Add(new XmlDataContractSerializerInputFormatter());
+})
+.AddJsonOptions(options =>
+{
+    options.SerializerSettings.ContractResolver =
+    new CamelCasePropertyNamesContractResolver();
+});
+```
+
+It's perfectly valid to use this on a single resource as well, so let's check that out in the next demo.
