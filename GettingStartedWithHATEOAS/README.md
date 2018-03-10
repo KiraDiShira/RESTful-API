@@ -16,13 +16,43 @@ Now imagine another case. Let's say we have an additional field, NumberOfCopiesI
 
 So in our example, we could add an additional property, links to the response. And the client would just have to inspect these links. 
 
-<img src="" />
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingStartedWithHATEOAS/Images/gsh1.PNG" />
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingStartedWithHATEOAS/Images/gsh2.PNG" />
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingStartedWithHATEOAS/Images/gsh3.PNG" />
 
 And if a reservation link appears, a reservation can be made for this book. So it's up to the server to decide whether or not to show this link. The consumer needs no knowledge about that business rule. And moreover, the rule can change without having to redo anything at the client level. If all of a sudden we expand the rule, stating that there must be copies left and that the user must be over 16 to reserve a book marked with content mature, this is no longer something that has to be checked by the client. The server would simply not include that link to make the reservation and the client only has to inspect the link to say, show a button to make the reservation. 
 
-Let's have a look at another Roy Fielding quote, the guy who invented REST. "You can't have evolvability if clients have their controls baked into their design at deployment. Controls have to be learned on the fly. And that's what hypermedia enables." And this quote does go quite far. If we match this to building applications, we're almost talking about self-generating client user interfaces. Most apps don't go that far. But, as the example we used teaches us, for things like rules that change, this is pretty great. And, additional pieces of functionality can be added. For example, marking a book as one of your favorite books. In that case, an additional link will be provided and this will not break existing client applications. But, from that moment on, they can implement this functionality starting from that link. We'll get back to this sample later on. If you think about all of this, this is actually nothing more than how we should work with the HTTP protocol. As we know, RESTy folks, any much of how a good web app should work. Well, on the app, it doesn't really matter if a link changes, we start at De Tijd, where I have a newspaper site for example. And from that we navigate to an article by clicking a link or submitting a comment to a forum. And that's two examples of hypermedia driving application state. And, if the server decides that the link should change, well, to request that we turn to route page, we'll contain that new link. The browser, which is our application in this context, does not break because that link changed. Instead, it's the hypermedia in the response that's used by the browser to show us what we can do next. Okay, now what do these links look like? JSON or XML don't have a notion on how to represent links. But HTML does, the anchor element. In HTML, href contains the URI, rel describes how the link relates to the resource, and type, which is optional, describes the media type. For supporting HATEOAS, this format is often expanded upon. Let's have a look at one of the links from our previous example again. They all follow the same principles. The method property defines the method to use. Rel defines a type of action. This is what clients look for in the links list. Href contains the URI to be invoked to execute this action. The client simply uses this link, he doesn't have to create it anymore. Mind you, HATEOAS does not completely lift a client of having to have some knowledge of what to expect. It still needs to know about the link types that can come back. In other words, the rel values and whether or not it wants to use them. But if we're no longer hard coding URIs and assumptions in the client, a URI or assumption change no longer breaks the client. Now, if this were a collection resource like our authors resource, this is also where we'd include the pagination links. So they're no longer in the pagination header, they're now in the links area on our response. For collection resources, we will need some sort of envelope, an object to hold the value, which has the list of authors and the links. Were we to just add an area of authors and a links property, which is an area of links, we'd have invalid JSON. And this might be the moment when you're thinking, Wait a minute, this does not make sense. When we learned about paging, we learned that we couldn't use an object like this because that would break the self-descriptive message constraint. After all, when requesting the authors with media type application JSON, the representation should be an area of authors. This isn't truly RESTful, but that can be fixed. We're covering that next. For now, let's see how we can implement this in the next few clips.
+Let's have a look at another Roy Fielding quote, the guy who invented REST. 
 
-<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/SortingAndDataShaping/Images/Sds1.PNG" />
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingStartedWithHATEOAS/Images/gsh4.PNG" />
+
+If we match this to building applications, we're almost talking about self-generating client user interfaces. Most apps don't go that far. But, as the example we used teaches us, for things like rules that change, this is pretty great. And, additional pieces of functionality can be added. For example, marking a book as one of your favorite books. In that case, an additional link will be provided and this will not break existing client applications. But, from that moment on, they can implement this functionality starting from that link. We'll get back to this sample later on. 
+
+If you think about all of this, this is actually nothing more than how we should work with the HTTP protocol. As we know, RESTy folks, any much of how a good web app should work. Well, on the app, it doesn't really matter if a link changes, we start at De Tijd, where I have a newspaper site for example. And from that we navigate to an article by clicking a link or submitting a comment to a forum. And that's two examples of hypermedia driving application state. And, if the server decides that the link should change, well, to request that we turn to route page, we'll contain that new link. The browser, which is our application in this context, does not break because that link changed. Instead, it's the hypermedia in the response that's used by the browser to show us what we can do next. 
+
+Okay, now what do these links look like? JSON or XML don't have a notion on how to represent links. But HTML does, the anchor element. In HTML, href contains the URI, rel describes how the link relates to the resource, and type, which is optional, describes the media type. 
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingStartedWithHATEOAS/Images/gsh5.PNG" />
+
+For supporting HATEOAS, this format is often expanded upon. Let's have a look at one of the links from our previous example again. They all follow the same principles. The method property defines the method to use. Rel defines a type of action. This is what clients look for in the links list. Href contains the URI to be invoked to execute this action. 
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingStartedWithHATEOAS/Images/gsh6.PNG" />
+
+The client simply uses this link, he doesn't have to create it anymore. Mind you, HATEOAS does not completely lift a client of having to have some knowledge of what to expect. It still needs to know about the link types that can come back. In other words, the rel values and whether or not it wants to use them. But if we're no longer hard coding URIs and assumptions in the client, a URI or assumption change no longer breaks the client. 
+
+Now, if this were a collection resource like our authors resource, this is also where we'd include the pagination links. So they're no longer in the pagination header, they're now in the links area on our response.
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingStartedWithHATEOAS/Images/gsh7.PNG" />
+
+For collection resources, we will need some sort of envelope, an object to hold the value, which has the list of authors and the links. Were we to just add an array of authors and a links property, which is an array of links, we'd have invalid JSON.
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/GettingStartedWithHATEOAS/Images/gsh8.PNG" />
+
+And this might be the moment when you're thinking, Wait a minute, this does not make sense. When we learned about paging, we learned that we couldn't use an object like this because that would break the self-descriptive message constraint. After all, when requesting the authors with media type application JSON, the representation should be an area of authors. This isn't truly RESTful, but that can be fixed. We're covering that next. For now, let's see how we can implement this in the next few clips.
+
+
 
 ```c#
 public class AuthorsResourceParameters
