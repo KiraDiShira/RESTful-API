@@ -3,6 +3,8 @@
 # Advanced HATEOAS, Media Types, and Versioning 
 
 - [HATEOAS and Content Negotiation](#hateoas-and-content-negotiation)
+- [Working Towards Self-discoverability with a Root Document](#working-towards-self-discoverability-with-a-root-document)
+- [Revisiting Media Types](#revisiting-media-types)
 
 ## HATEOAS and Content Negotiation
 
@@ -361,3 +363,80 @@ Headers: Accept: application/vnd.marvin.hateoas+json
 
 Response header: x-pagination →{"totalCount":6,"pageSize":10,"currentPage":1,"totalPages":1}
 ```
+
+## Working Towards Self-discoverability with a Root Document
+
+```c#
+[Route("api")]
+public class RootController : Controller
+{
+    private IUrlHelper _urlHelper;
+
+    public RootController(IUrlHelper urlHelper)
+    {
+        _urlHelper = urlHelper;
+    }
+
+    [HttpGet(Name = "GetRoot")]
+    public IActionResult GetRoot([FromHeader(Name = "Accept")] string mediaType)
+    {
+        if (mediaType == "application/vnd.marvin.hateoas+json")
+        {
+            var links = new List<LinkDto>();
+
+            links.Add(
+                new LinkDto(_urlHelper.Link("GetRoot", new { }),
+                    "self",
+                    "GET"));
+
+            links.Add(
+                new LinkDto(_urlHelper.Link("GetAuthors", new { }),
+                    "authors",
+                    "GET"));
+
+            links.Add(
+                new LinkDto(_urlHelper.Link("CreateAuthor", new { }),
+                    "create_author",
+                    "POST"));
+
+            return Ok(links);
+        }
+
+        return NoContent();
+    }
+}
+```
+
+```
+GET ---> http://localhost:6058/api/
+Headers: Accept: application/json
+
+(204 - no content)
+```
+
+```
+GET ---> http://localhost:6058/api/
+Headers: Accept: application/vnd.marvin.hateoas+json
+
+(200 - OK)
+
+[
+    {
+        "href": "http://localhost:6058/api",
+        "rel": "self",
+        "method": "GET"
+    },
+    {
+        "href": "http://localhost:6058/api/authors",
+        "rel": "authors",
+        "method": "GET"
+    },
+    {
+        "href": "http://localhost:6058/api/authors",
+        "rel": "create_author",
+        "method": "POST"
+    }
+]
+```
+
+## Revisiting Media Types
