@@ -5,6 +5,7 @@
 - [HATEOAS and Content Negotiation](#hateoas-and-content-negotiation)
 - [Working Towards Self-discoverability with a Root Document](#working-towards-self-discoverability-with-a-root-document)
 - [Revisiting Media Types](#revisiting-media-types)
+- [Versioning in a RESTful World](#versioning-in-a-restful-world)
 
 ## HATEOAS and Content Negotiation
 
@@ -440,3 +441,21 @@ Headers: Accept: application/vnd.marvin.hateoas+json
 ```
 
 ## Revisiting Media Types
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/AdvancedHATEOAS/Images/ah2.PNG" />
+
+On screen, we see part of the response body for a book, requested with our new media type in the Accept header. There's two issues with this, first the format on the links. This format isn't a standard, it's something we're cooking up. The client will have to know how to interpret this format. And it learns that from the API documentation where we describe the custom media type, and where we describe Rel Values.
+
+As we learned before, media types are also part of our outer facing contract. And then there's another issue. Hyper media allows the application controls, the links, to be supplied on demand. So, say we have a link to update the book, as we see on screen. How does the consumer know what exactly to send as far as the representation goes? We touched upon media types before, and we learned how to create our own media types. It defines the presentation of a resource. It's a central principle in the RESTful world. And we actually already have a great example we can use to explain this. 
+
+Remember that we have different representations for getting an author and creating an author?
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/AdvancedHATEOAS/Images/ah3.PNG" />
+
+When we get one, we get back an id, a name, an age, and a genre. To create one, you must pass in a first name and last name, a date of birth, and a genre, but no id. We just used application/json as media types for both of these, as most APIs do. But, in fact, these are different representations of the same author's resource. Using application/json is actually a mistake. That just tells us we want data format to be JSON. But we need to be more specific. 
+
+So how do we correct this? By using media types. Instead of using application/json, you could create vendor-specific media types for these representations. An author representation to get can then be represented with media type author.friendly, for a friendlier format with age and name. And alt for the presentation to create can then be represented with media type author.full. And we can go even further. We could support different representations when we get an author. Pass in the author.full media type, would return the author with first name, last name and date of birth. We just learned how to work with these media types in the previous two demos. So, we already know how to support this. And this almost automatically brings us to versioning. After all, we are talking about an evolvable API. And that includes changes in representations.
+
+## Versioning in a RESTful World
+
+<img src="https://github.com/KiraDiShira/RESTful-API/blob/master/AdvancedHATEOAS/Images/ah4.PNG" />
